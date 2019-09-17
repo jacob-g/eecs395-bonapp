@@ -40,7 +40,6 @@ create table statuses (
 create table menu_item (
   id int not null auto_increment primary key,
   name varchar(225) not null,
-  date_of timestamp not null,
   dining_hall varchar(225) not null
 );
 
@@ -52,6 +51,11 @@ create table dining_hall (
   brunch varchar(225)
 );
 
+create table facilities (
+  id int not null auto_increment primary key,
+  name varchar(225) not null
+);
+
 -- represent relations
 create table reviews (
   user_id varchar(225) not null references user (id),
@@ -61,8 +65,8 @@ create table reviews (
 
 create table status_of (
   status_id int not null references statues (item_id),
-  menu_item_id int not null references menu_item (id),
-  primary key (status_id, menu_item_id)
+  facilities_id int not null references facilities (id),
+  primary key (status_id, facilities_id)
 );
 
 create table inventories (
@@ -80,7 +84,8 @@ create table review_of (
 create table serves (
   menu_item_id int not null references menu_item (id),
   dining_hall_name varchar(225) not null references dining_hall (name),
-  primary key (menu_item_id, dining_hall_name)
+  primary key (menu_item_id, dining_hall_name),
+  date_of timestamp not null
 );
 
 -- restrict ratings to (0,5)
