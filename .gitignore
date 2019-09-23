@@ -1,2 +1,4 @@
 */__pycache__/*
 *.pyc
+
+web/libs/__pycache__/db.cpython-37.pyc
