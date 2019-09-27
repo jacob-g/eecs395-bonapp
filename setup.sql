@@ -25,7 +25,8 @@ create table review (
   user varchar(225) not null,
   rating int not null,
   comments varchar(140) not null,
-  item varchar(225) not null
+  item varchar(225) not null,
+  time_stamp timestamp not null default current_timestamp,
 );
 
 create table statuses (
