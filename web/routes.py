@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from libs.db import DBConnector
 from libs import objects
 
