@@ -33,7 +33,7 @@ class DBConnector:
 		user = []
 		res = self.__query("SELECT id, name FROM user WHERE name='%s' LIMIT 1", (name))
 		if res.len() == 1:
-			return User(res[0], res[1])
+			return objects.User(res[0], res[1])
 		else:
 			return None
 		
