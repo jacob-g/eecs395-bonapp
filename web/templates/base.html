@@ -11,7 +11,11 @@
     {% block head %}
 
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0a304e">
-      <a class="navbar-brand" style="font-size: 2em" href="#">Login/Logout</a>
+      {% if user %}
+      <span class="navbar-brand">Welcome, {{ user.name }}. <a href="/logout">Log out</a></span>
+      {% else %}
+      <a class="navbar-brand" style="font-size: 2em" href="https://login.case.edu/cas/login?service={{ url_for(request.endpoint, _external=True) }}">Login</a>
+      {% endif %}
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>

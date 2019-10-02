@@ -12,7 +12,6 @@ class DBConnector:
 	#TODO: make this resistant to SQL injection!!!
 	def __query(self, query, args=()):
 		self.link.query(query % args)
-		print(query % args)
 		return self.link.store_result().fetch_row(maxrows=0)
 	
 	def __decode(self, bin):

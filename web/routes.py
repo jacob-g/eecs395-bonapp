@@ -10,4 +10,4 @@ dining_halls = dbLink.diningHalls()
 
 @app.route("/")
 def index():
-	return render_template("index.html", dining_halls=dining_halls)
+	return render_template("index.html", dining_halls=dining_halls, user=objects.User("jvg11", "Jacob Goldberg"))
