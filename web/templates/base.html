@@ -21,12 +21,12 @@
           <li class="nav-item active">
             <a class="nav-link" href="homepage">Home <span class="sr-only">(current)</span></a>
           </li>
+          {% for dining_hall in dining_halls %}
           <li class="nav-item">
-            <a class="nav-link" href="review_form">Leutner</a>
+            <a class="nav-link" href="review_form">{{ dining_hall.name }}</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="reviews_list">Fribley</a>
-          </li>
+          {% endfor %}
+        </ul>
       </div>
     </nav>
     {% endblock %}
