@@ -17,7 +17,8 @@ class Review:
 	def __init__(self, rating, comments):
 		self.rating = rating
 		self.comments = comments
-		
+
+#TODO: make JSON-serializable
 class User:
 	def __init__(self, id, name):
 		self.id = id
