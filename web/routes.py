@@ -8,5 +8,4 @@ dbLink = DBConnector()
 
 @app.route("/")
 def index():
-	print(dbLink.menuFor(dbLink.diningHalls()[1], "2019-09-25"))
-	return "test"
+	return render_template("index.html")
