@@ -3,3 +3,5 @@
 
 web/libs/__pycache__/db.cpython-37.pyc
 *.pyc
+web/.pydevproject
+web/.project
