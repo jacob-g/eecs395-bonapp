@@ -23,3 +23,10 @@ class User:
 	def __init__(self, id, name):
 		self.id = id
 		self.name = name
+		
+	def to_dictionary(self):
+		return {"id": self.id, "name": self.name}
+	
+	@staticmethod
+	def from_dictionary(in_dict):
+		return User(in_dict["id"], in_dict["name"])
