@@ -31,4 +31,5 @@ class LoginState:
 				
 	@staticmethod	
 	def logout_user():
-		session.pop(USER_SESSION_KEY)
+		if USER_SESSION_KEY in session:
+			session.pop(USER_SESSION_KEY)
