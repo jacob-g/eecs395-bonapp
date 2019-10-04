@@ -11,10 +11,10 @@
     {% block head %}
 
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0a304e">
-      {% if login_state.user %}
-      <span class="navbar-brand">Welcome, {{ login_state.user.name }}. <a href="{{ login_state.logout_url }}">Log out</a></span>
+      {% if metadata.login_state.user %}
+      <span class="navbar-brand">Welcome, {{ metadata.login_state.user.name }}. <a href="{{ metadata.login_state.logout_url }}">Log out</a></span>
       {% else %}
-      <a class="navbar-brand" style="font-size: 2em" href="{{ login_state.login_url }}">Login</a>
+      <a class="navbar-brand" style="font-size: 2em" href="{{ metadata.login_state.login_url }}">Login</a>
       {% endif %}
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -25,7 +25,7 @@
           <li class="nav-item active">
             <a class="nav-link" href="homepage">Home <span class="sr-only">(current)</span></a>
           </li>
-          {% for dining_hall in dining_halls %}
+          {% for dining_hall in metadata.dining_halls %}
           <li class="nav-item">
             <a class="nav-link" href="review_form">{{ dining_hall.name }}</a>
           </li>

@@ -3,7 +3,7 @@ from libs import objects
 from flask import session
 
 class LoginState:
-	def __init__(self, ticket=None, Cookie=None):
+	def __init__(self, ticket=None):
 		self.client = cas.CASClientV3(
                         renew=False,
                         extra_login_params=False,
