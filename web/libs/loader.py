@@ -8,5 +8,5 @@ def get_metadata(db):
     }
     
     
-def load_page(template, db):
-    return render_template(template, metadata=get_metadata(db))
+def load_page(template, page_data_function, db):
+    return render_template(template, metadata=get_metadata(db), page_data=page_data_function())
