@@ -12,15 +12,16 @@ dbLink = DBConnector()
 page_metadata = []
 
 routes = {
-	"/": ("index.html", index)
-	#"/logout": ("empty.html", logout)
+	"/": ("index.html", index),
+	"/logout": ("empty.html", logout)
 }
 
 loader_funcs = []
 
 for url, page_spec in routes.items():
 	#TODO: make the variables stored inside the lambda
-	loader_func = lambda: loader.load_page(page_spec[0], page_spec[1].page_data, dbLink)
+	loader_func = lambda page_spec=page_spec: loader.load_page(page_spec[0], page_spec[1].page_data, dbLink)
 	loader_func.__name__ = f"load:{url}"
 		
 	app.route(url)(loader_func)
+	
