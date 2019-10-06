@@ -99,5 +99,5 @@ insert into allowed_scores (score) values (1), (2), (3), (4), (5);
 alter table review add foreign key (rating) references allowed_scores (score);
 
 -- add foreign key constraints
---alter table statuses add foreign key (item_id) references menu_item (id);
---alter table menu_item add foreign key (dining_hall) references dining_hall (name);
+alter table statuses add foreign key (item_id) references menu_item (id);
+alter table menu_item add foreign key (dining_hall) references dining_hall (name);

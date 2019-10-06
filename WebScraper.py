@@ -1,6 +1,8 @@
 import lxml.html
+import lxml.etree
 import requests
 import mysql.connector
+from datetime import datetime
 
 #retrieve web page data
 leutPage = requests.get("https://case.cafebonappetit.com/cafe/leutner-cafe/")
@@ -36,15 +38,57 @@ fribDinnerItems = leutTree.xpath('//section[@data-jump-nav-title="Dinner"]//butt
 #connect to database
 connection = mysql.connector.connect(host="localhost", user="bonapp", password="password", database="review")
 
-def insert_meal(name, dining_hall, meal):
-    query = "insert into menu_item (name, dining_hall,meal) values (%s, %s, %s)"
-    args = (name, dining_hall, meal)
+#create relation serves
+def serves_table(id, name, date):
+    query = "insert ignore into serves (menu_item_id, dining_hall_name, date_of) values (%s, %s, %s)"
+    args = (id, name, date)
 
     cursor = connection.cursor()
     cursor.execute(query,args)
 
     connection.commit()
     cursor.close()
+
+#insert menu_item entities
+def insert_meal(name, dining_hall, meal):
+    query = "insert into menu_item (name, dining_hall, meal) values (%s, %s, %s)"
+    args = (name, dining_hall, meal)
+
+    #retrieve menu_item_ids
+    retrieve = "select id from menu_item where name=%s and dining_hall=%s and meal=%s"
+
+    #retrieve current date
+    now = datetime.now()
+    date = now.strftime('%Y-%m-%d')
+
+    cursor = connection.cursor()
+    cursor.execute(query,args)
+
+    cursor.execute(retrieve,args)
+    item_id = cursor.fetchall()
+    serves_table(item_id[0][0], dining_hall, date)
+
+    connection.commit()
+    cursor.close()
+
+#insert dining_hall entities
+def insert_hours(name, breakfast, lunch, dinner, brunch):
+    query = "insert into dining_hall (name, breakfast, lunch, dinner, brunch) values (%s,%s,%s,%s,%s)"
+    args = (name, breakfast, lunch, dinner, brunch)
+
+    cursor = connection.cursor()
+    cursor.execute(query,args)
+
+    connection.commit()
+    cursor.close()
+
+#write hours to database
+if (len(leutBrunchHours) == 0):
+    insert_hours("Leutner", leutBreakfastHours[0].__str__(), leutLunchHours[0].__str__(), leutDinnerHours[0].__str__(), None)
+    insert_hours("Fribley", fribBreakfastHours[0].__str__(), fribLunchHours[0].__str__(), fribDinnerHours[0].__str__(), None)
+else:
+    insert_hours("Leutner", None, None, leutDinnerHours[0].__str__(), leutBrunchHours[0].__str__())
+    insert_hours("Fribley", None, None, fribDinnerHours[0].__str__(), fribBrunchHours[0].__str__())
 
 #write items to database
 for x in leutBreakfastItems:
