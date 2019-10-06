@@ -25,8 +25,7 @@ create table review (
   user varchar(225) not null,
   rating int not null,
   comments varchar(140) not null,
-  item varchar(225) not null,
-  time_stamp timestamp not null default current_timestamp,
+  item varchar(225) not null
 );
 
 create table statuses (
@@ -41,7 +40,8 @@ create table statuses (
 create table menu_item (
   id int not null auto_increment primary key,
   name varchar(225) not null,
-  dining_hall varchar(225) not null
+  dining_hall varchar(225) not null,
+  meal varchar(225) not null
 );
 
 create table dining_hall (
@@ -99,5 +99,5 @@ insert into allowed_scores (score) values (1), (2), (3), (4), (5);
 alter table review add foreign key (rating) references allowed_scores (score);
 
 -- add foreign key constraints
-alter table statuses add foreign key (item_id) references menu_item (id);
-alter table menu_item add foreign key (dining_hall) references dining_hall (name);
+--alter table statuses add foreign key (item_id) references menu_item (id);
+--alter table menu_item add foreign key (dining_hall) references dining_hall (name);
