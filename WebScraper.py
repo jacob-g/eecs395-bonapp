@@ -64,9 +64,9 @@ def insert_meal(name, dining_hall, meal):
     cursor = connection.cursor()
     cursor.execute(query,args)
 
-    cursor.execute(retrieve,args)
+    cursor.execute(retrieve,args) #retrieve menu_item_id
     item_id = cursor.fetchall()
-    serves_table(item_id[0][0], dining_hall, date)
+    serves_table(item_id[0][0], dining_hall, date) #link menu_item_id with dining_hall in serves relation
 
     connection.commit()
     cursor.close()
