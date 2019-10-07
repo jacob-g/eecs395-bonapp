@@ -1,6 +1,6 @@
 import cas
 from libs import objects
-from flask import session
+from flask import session, request, url_for
 
 USER_SESSION_KEY = "user"
 
@@ -10,22 +10,24 @@ class LoginState:
                         renew=False,
                         extra_login_params=False,
                         server_url='https://login.case.edu/cas/',
-                        service_url='http://localhost:5000/'
-                        
+                        service_url=request.url_root
                     )
 		
 		self.login_url = self.client.get_login_url()
-		self.logout_url = self.client.get_logout_url("http://localhost:5000/logout")
+		self.logout_url = self.client.get_logout_url(f"{request.url_root}logout")
 		
-		if ticket is not None:
+		#there is a user logged in
+		if USER_SESSION_KEY in session and session.get(USER_SESSION_KEY) is not None:
+			self.user = objects.User.from_dictionary(session.get(USER_SESSION_KEY))
+		
+		#we got a ticket from CAS, so the user just logged in
+		elif ticket is not None:
 			verState = self.client.verify_ticket(ticket)
 			if verState[0] is not None:
 				self.user=objects.User(verState[1]["user"], verState[1]["displayName"])
 				session[USER_SESSION_KEY] = self.user.to_dictionary()
 		
-		elif USER_SESSION_KEY in session and session.get(USER_SESSION_KEY) is not None:
-			self.user = objects.User.from_dictionary(session.get(USER_SESSION_KEY))
-		
+		#no logged in user
 		else:
 			self.user = None
 				
