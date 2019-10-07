@@ -45,7 +45,7 @@ class DBConnector:
 			return None
 		
 	def addReview(self, review):
-		self.__query("INSERT INTO review()").close()
+		self.__query("INSERT INTO review(user, rating, comments, item) VALUES(%s, %s, %s, %s)", ("jvg11", review.rating, review.comments, review.item.id)).close()
 		return
 		
 	def reviewsFor(self, menuItem):

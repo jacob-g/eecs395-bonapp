@@ -20,8 +20,8 @@ class MenuItem:
 		
 	@staticmethod
 	def from_db(row, dining_hall):
-		return MenuItem(row["menu_item.id"], row["menu_item.name"], dining_hall)
-		
+		return MenuItem(row["menu_item.id"], row["menu_item.name"], dining_hall)	
+	
 class Review:
 	def __init__(self, rating, comments, menu_item):
 		self.rating = rating
