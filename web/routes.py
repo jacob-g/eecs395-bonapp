@@ -15,13 +15,13 @@ routes = {
 	"/": {"template": "index.html", "behavior": index, "methods": ["GET"]},
 	"/logout": {"template": "empty.html", "behavior": logout, "methods": ["GET"]},
 	"/actions/leave_review": {"template": "empty.html", "behavior": add_review, "methods": ["POST"]},
-	"/leave_review": {"template": "leave_review.html", "behavior": leave_review, "methods": ["GET"]}
+	"/leave_review/<menu_item_id>": {"template": "leave_review.html", "behavior": leave_review, "methods": ["GET"]}
 }
 
 loader_funcs = []
 
 for url, page_spec in routes.items():
-	loader_func = lambda page_spec=page_spec: loader.load_page(page_spec["template"], page_spec["behavior"], dbLink)
+	loader_func = lambda page_spec=page_spec, *args, **kwargs: loader.load_page(page_spec["template"], page_spec["behavior"], dbLink, *args, **kwargs)
 	loader_func.__name__ = f"load:{url}"
 		
 	app.route(url, methods=page_spec["methods"])(loader_func)
