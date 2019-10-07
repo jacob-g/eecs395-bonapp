@@ -13,24 +13,28 @@ class DiningHall:
 		return
 		
 class MenuItem:
-	def __init__(self, id, name):
+	def __init__(self, id, name, dining_hall):
 		self.id = id
 		self.name = name
+		self.dining_hall = dining_hall
 		
 	@staticmethod
-	def from_db(row):
-		return MenuItem(row["menu_item.id"], row["menu_item.name"])
+	def from_db(row, dining_hall):
+		return MenuItem(row["menu_item.id"], row["menu_item.name"], dining_hall)
 		
 class Review:
-	def __init__(self, rating, comments):
+	def __init__(self, rating, comments, menu_item):
 		self.rating = rating
 		self.comments = comments
+		self.menu_item = menu_item
 	
 	@staticmethod
-	def from_db(row):
-		return Review(row["review.rating"], row["review.comments"])
+	def from_db(row, menu_item):
+		return Review(row["review.rating"], row["review.comments"], menu_item)
+	
+	def add_to_db(self, db):
+		return db.addReview(self)
 
-#TODO: make JSON-serializable
 class User:
 	def __init__(self, id, name):
 		self.id = id

@@ -44,13 +44,17 @@ class DBConnector:
 		else:
 			return None
 		
+	def addReview(self, review):
+		self.__query("INSERT INTO review()").close()
+		return
+		
 	def reviewsFor(self, menuItem):
 		reviews = []
 		
 		row = {}
 		cursor = self.__query("SELECT review.rating,review.comments,item FROM review LEFT JOIN review_of ON review_of.review_id=review.id WHERE review_of.menu_item_id=%s", (menuItem.id))
 		for row["review.rating"], row["review.comments"] in cursor:
-			reviews.append(objects.Review.from_db(row))
+			reviews.append(objects.Review.from_db(row, menuItem))
 			
 		cursor.close()
 		return reviews
