@@ -39,9 +39,9 @@ fribDinnerItems = leutTree.xpath('//section[@data-jump-nav-title="Dinner"]//butt
 connection = mysql.connector.connect(host="localhost", user="bonapp", password="password", database="review")
 
 #create relation serves
-def serves_table(id, name, date):
-    query = "insert ignore into serves (menu_item_id, dining_hall_name, date_of) values (%s, %s, %s)"
-    args = (id, name, date)
+def serves_table(id, name, meal, date):
+    query = "insert ignore into serves (menu_item_id, dining_hall_name, meal, date_of) values (%s, %s, %s, %s)"
+    args = (id, name, meal, date)
 
     cursor = connection.cursor()
     cursor.execute(query,args)
@@ -66,7 +66,7 @@ def insert_meal(name, dining_hall, meal):
 
     cursor.execute(retrieve,args) #retrieve menu_item_id
     item_id = cursor.fetchall()
-    serves_table(item_id[0][0], dining_hall, date) #link menu_item_id with dining_hall in serves relation
+    serves_table(item_id[0][0], dining_hall, meal, date) #link menu_item_id with dining_hall in serves relation
 
     connection.commit()
     cursor.close()
