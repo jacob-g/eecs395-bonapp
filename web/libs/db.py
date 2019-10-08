@@ -25,7 +25,7 @@ class DBConnector:
 		return result
 		
 	#TODO: factor out some of this logic into a lambda function representing a constructor
-	def diningHalls(self):
+	def dining_halls(self):
 		diningHalls = []
 		
 		row = {}
@@ -55,11 +55,11 @@ class DBConnector:
 		self.__query("INSERT INTO `user`(id, name) SELECT %s, %s FROM DUAL WHERE (SELECT COUNT(1) FROM user WHERE id=%s)=0", (user.id, user.name, user.id), True)
 		return
 		
-	def addReview(self, review, user):
+	def add_review(self, review, user):
 		self.__query("INSERT INTO review(user, rating, comments, item) VALUES(%s, %s, %s, %s)", (user.id, review.rating, review.comments, review.item.id), True).close()
 		return
 		
-	def reviewsFor(self, menuItem):
+	def reviews_for(self, menuItem):
 		reviews = []
 		
 		row = {}

@@ -33,7 +33,7 @@ class Review:
 		return Review(row["review.rating"], row["review.comments"], menu_item)
 	
 	def add_to_db(self, db):
-		return db.addReview(self)
+		return db.add_review(self)
 
 class User:
 	def __init__(self, id, name):
