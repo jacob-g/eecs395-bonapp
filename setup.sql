@@ -83,9 +83,10 @@ create table review_of (
 );
 
 create table serves (
+  id int not null auto_increment primary key,
   menu_item_id int not null references menu_item (id),
   dining_hall_name varchar(225) not null references dining_hall (name),
-  primary key (menu_item_id, dining_hall_name),
+  meal varchar(225) not null references menu_item (meal),
   date_of timestamp not null
 );
 
