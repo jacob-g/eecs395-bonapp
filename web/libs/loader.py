@@ -3,7 +3,7 @@ from flask import request, render_template
 
 def get_metadata(db):
     return {
-        "login_state": login.LoginState(request.args.get("ticket")),
+        "login_state": login.LoginState(db, request.args.get("ticket")),
         "dining_halls": db.diningHalls()
     }
     

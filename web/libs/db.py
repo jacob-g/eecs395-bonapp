@@ -10,11 +10,18 @@ class DBConnector:
 	def __init__(self):
 		self.link=mysql.connector.connect(host=self.host, user=self.username, password=self.password, database=self.dbname)
 		
-	def __query(self, query, args=()):
+	def __query(self, query, args=(), makes_changes=False):
 		cursor = self.link.cursor()
 		cursor.execute(query, args)
-		result = cursor.fetchall()
-		cursor.close()
+		
+		if makes_changes:
+			result = None
+			self.link.commit()
+			cursor.close()
+		else:
+			result = cursor.fetchall()
+			cursor.close()
+			
 		return result
 		
 	#TODO: factor out some of this logic into a lambda function representing a constructor
@@ -37,15 +44,19 @@ class DBConnector:
 			
 		return menuItems
 		
-	def userFor(self, name):
+	def user_for(self, name):
 		res = self.__query("SELECT id, name FROM user WHERE name=%s LIMIT 1", (name))
 		if res.len() == 1:
 			return objects.User(res[0], res[1])
 		else:
 			return None
 		
-	def addReview(self, review):
-		self.__query("INSERT INTO review(user, rating, comments, item) VALUES(%s, %s, %s, %s)", ("jvg11", review.rating, review.comments, review.item.id)).close()
+	def add_user_if_not_exists(self, user):			
+		self.__query("INSERT INTO `user`(id, name) SELECT %s, %s FROM DUAL WHERE (SELECT COUNT(1) FROM user WHERE id=%s)=0", (user.id, user.name, user.id), True)
+		return
+		
+	def addReview(self, review, user):
+		self.__query("INSERT INTO review(user, rating, comments, item) VALUES(%s, %s, %s, %s)", (user.id, review.rating, review.comments, review.item.id), True).close()
 		return
 		
 	def reviewsFor(self, menuItem):

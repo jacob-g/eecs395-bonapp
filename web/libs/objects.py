@@ -43,6 +43,9 @@ class User:
 	def to_dictionary(self):
 		return {"id": self.id, "name": self.name}
 	
+	def add_to_db(self, db):
+		return db.add_user_if_not_exists(self)
+	
 	@staticmethod
 	def from_dictionary(in_dict):
 		return User(in_dict["id"], in_dict["name"])
