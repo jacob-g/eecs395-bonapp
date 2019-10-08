@@ -12,29 +12,30 @@ class DBConnector:
 	def __query(self, query, args=()):
 		cursor = self.link.cursor()
 		cursor.execute(query, args)
-		return cursor
+		result = cursor.fetchall()
+		cursor.close()
+		return result
 		
 	#TODO: factor out some of this logic into a lambda function representing a constructor
 	def diningHalls(self):
 		diningHalls = []
 		
 		row = {}
-		cursor = self.__query("SELECT name FROM dining_hall ORDER BY name ASC")
-		for row["dining_hall.name"] in cursor:
+		for db_row in self.__query("SELECT name FROM dining_hall ORDER BY name ASC"):
+			row["dining_hall.name"] = db_row[0]
 			diningHalls.append(objects.DiningHall.from_db(row))
 			
-		cursor.close()
 		return diningHalls
 		
 	def menuFor(self, diningHall, date):
 		menuItems = []
 		
 		row = {}
-		cursor = self.__query("SELECT menu_item.id,menu_item.name FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id WHERE date_of=%s AND serves.dining_hall_name=%s ORDER BY menu_item.name ASC", (date, diningHall.name))
-		for row["menu_item.id"], row["menu_item.name"] in cursor:
+		for db_row in self.__query("SELECT menu_item.id,menu_item.name FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id WHERE date_of=%s AND serves.dining_hall_name=%s ORDER BY menu_item.name ASC", (date, diningHall.name)):
+			row["menu_item.id"] = db_row[0]
+			row["menu_item.name"] = db_row[1]
 			menuItems.append(objects.MenuItem.from_db(row))
 			
-		cursor.close()
 		return menuItems
 		
 	def userFor(self, name):
