@@ -1,7 +1,7 @@
 from flask import Flask
 from libs.db import DBConnector
 from libs import loader
-from page_behaviors import index, logout
+from page_behaviors import index, logout, add_review, leave_review, dining_hall_page, view_reviews
 
 #TODO: put this login into its own file
 app = Flask(__name__)
@@ -12,16 +12,18 @@ dbLink = DBConnector()
 page_metadata = []
 
 routes = {
-	"/": ("index.html", index),
-	"/logout": ("empty.html", logout)
+	"/": {"template": "index.html", "behavior": index, "methods": ["GET"]},
+	"/logout": {"template": "empty.html", "behavior": logout, "methods": ["GET"]},
+	"/actions/leave_review": {"template": "empty.html", "behavior": add_review, "methods": ["POST"]},
+	"/dining_hall/<dining_hall_name>": {"template": "dining_hall.html", "behavior": dining_hall_page, "methods": ["GET"]},
+	"/reviews/<menu_item_id>": {"template": "reviews.html", "behavior": view_reviews, "methods": ["GET"]}
 }
 
 loader_funcs = []
 
 for url, page_spec in routes.items():
-	#TODO: make the variables stored inside the lambda
-	loader_func = lambda page_spec=page_spec: loader.load_page(page_spec[0], page_spec[1].page_data, dbLink)
+	loader_func = lambda page_spec=page_spec, *args, **kwargs: loader.load_page(page_spec["template"], page_spec["behavior"], dbLink, *args, **kwargs)
 	loader_func.__name__ = f"load:{url}"
 		
-	app.route(url)(loader_func)
+	app.route(url, methods=page_spec["methods"])(loader_func)
 	

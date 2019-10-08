@@ -1,0 +1,8 @@
+{% extends 'base.html'%}
+{% block content %}
+<h2>Information for {{ page_data["dining_hall"].name }}</h2>
+<h3>Today's Menu</h3>
+{% for menu_item in page_data["menu"] %}
+{{menu_item.name}} (<a href="/">Reviews</a>)
+{% endfor %}
+{% endblock %}
