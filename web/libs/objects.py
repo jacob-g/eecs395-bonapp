@@ -4,10 +4,10 @@ class DiningHall:
 		
 	@staticmethod
 	def from_db(row):
-		return DiningHall(row["dining_hall.name"]);
+		return DiningHall(format(row["dining_hall.name"]))
 		
 	def menu(self, date, db):
-		return db.menuFor(self, date)
+		return db.menu_for(self, date)
 		
 	def inventory(self, time):
 		return

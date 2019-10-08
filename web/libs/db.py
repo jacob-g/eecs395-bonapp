@@ -1,4 +1,5 @@
 import mysql.connector
+import datetime
 from libs import objects
 
 class DBConnector:
@@ -27,14 +28,12 @@ class DBConnector:
 			
 		return diningHalls
 		
-	def menuFor(self, diningHall, date):
+	def menu_for(self, dining_hall, date = datetime.date.today()):
 		menuItems = []
 		
 		row = {}
-		for db_row in self.__query("SELECT menu_item.id,menu_item.name FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id WHERE date_of=%s AND serves.dining_hall_name=%s ORDER BY menu_item.name ASC", (date, diningHall.name)):
-			row["menu_item.id"] = db_row[0]
-			row["menu_item.name"] = db_row[1]
-			menuItems.append(objects.MenuItem.from_db(row))
+		for (row["menu_item.id"], row["menu_item.name"]) in self.__query("SELECT menu_item.id,menu_item.name FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id WHERE serves.dining_hall_name=%s AND serves.date_of=%s ORDER BY menu_item.name ASC", (dining_hall.name, date)):
+			menuItems.append(objects.MenuItem.from_db(row, dining_hall))
 			
 		return menuItems
 		
