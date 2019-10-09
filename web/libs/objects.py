@@ -11,6 +11,16 @@ class DiningHall:
 		
 	def inventory(self, time):
 		return
+	
+class MenuItemServed:
+	def __init__(self, serve_id, menu_item, meal):
+		self.serve_id = serve_id
+		self.menu_item = menu_item
+		self.meal = meal
+		
+	@staticmethod
+	def from_db(row, dining_hall):
+		return MenuItemServed(row["serves.id"], MenuItem.from_db(row, dining_hall), row["serves.meal"])
 		
 class MenuItem:
 	def __init__(self, id, name, dining_hall):

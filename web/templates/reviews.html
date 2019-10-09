@@ -1,4 +1,16 @@
 {% extends 'base.html'%}
 {% block content %}
 <h2>Reviews</h2>
+<h3>For: {{ page_data["served_item"].menu_item.name }} at {{ page_data["served_item"].menu_item.dining_hall.name }}</h3>
+<h3>Leave Review</h3>
+<form action="/actions/leave_review" method="post" enctype="multipart/form-data">
+<input type="hidden" name="serves_id" value="{{ page_data["served_item"].serve_id }}" />
+<select name="score">
+	{% for score in metadata["allowed_scores"] %}
+	<option value="{{ score }}">{{ score }}</option>
+	{% endfor %}
+</select><br />
+<textarea name="comments"></textarea><br />
+<input type="submit" value="Leave review" />
+</form>
 {% endblock %}
