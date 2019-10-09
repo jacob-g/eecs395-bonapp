@@ -77,13 +77,11 @@ class DBConnector:
 			
 		return scores
 		
-	def reviews_for(self, menuItem):
+	def reviews_for(self, menu_item):
 		reviews = []
 		
 		row = {}
-		cursor = self.__query("SELECT review.rating,review.comments,item FROM review LEFT JOIN review_of ON review_of.review_id=review.id WHERE review_of.menu_item_id=%s", (menuItem.id))
-		for row["review.rating"], row["review.comments"] in cursor:
-			reviews.append(objects.Review.from_db(row, menuItem))
+		for (row["review.rating"], row["review.comments"], row["user.id"], row["user.name"]) in self.__query("SELECT review.rating,review.comments,user.id,user.name FROM review LEFT JOIN review_of ON review_of.review_id=review.id LEFT JOIN serves ON serves.id=review.item LEFT JOIN user ON user.id=review.user WHERE serves.menu_item_id=%s", (menu_item.id,)):
+			reviews.append(objects.Review.from_db(row, menu_item))
 			
-		cursor.close()
 		return reviews

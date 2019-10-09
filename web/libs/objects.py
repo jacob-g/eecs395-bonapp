@@ -33,14 +33,15 @@ class MenuItem:
 		return MenuItem(row["menu_item.id"], row["menu_item.name"], dining_hall)	
 	
 class Review:
-	def __init__(self, rating, comments, menu_item):
+	def __init__(self, rating, comments, menu_item, reviewer):
 		self.rating = rating
 		self.comments = comments
 		self.menu_item = menu_item
+		self.reviewer = reviewer
 	
 	@staticmethod
 	def from_db(row, menu_item):
-		return Review(row["review.rating"], row["review.comments"], menu_item)
+		return Review(row["review.rating"], row["review.comments"], menu_item, User(row["user.id"], row["user.name"]))
 	
 	def add_to_db(self, db):
 		return db.add_review(self)
