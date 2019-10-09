@@ -21,7 +21,7 @@ create table user (
 );
 
 create table review (
-  id int not null primary key,
+  id int not null auto_increment primary key,
   user varchar(225) not null,
   rating int not null,
   comments varchar(140) not null,
