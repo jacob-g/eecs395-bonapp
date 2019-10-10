@@ -101,5 +101,6 @@ alter table review add foreign key (rating) references allowed_scores (score);
 
 -- add foreign key constraints
 alter table review add foreign key (user) references user (id);
+alter table review add foreign key (item) references serves (id);
 alter table statuses add foreign key (item_id) references menu_item (id);
 alter table menu_item add foreign key (dining_hall) references dining_hall (name);
