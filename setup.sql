@@ -25,7 +25,7 @@ create table review (
   user varchar(225) not null,
   rating int not null,
   comments varchar(140) not null,
-  item varchar(225) not null
+  item int not null
 );
 
 create table statuses (
@@ -58,12 +58,6 @@ create table facilities (
 );
 
 -- represent relations
-create table reviews (
-  user_id varchar(225) not null references user (id),
-  review_id int not null references review (id),
-  primary key (user_id, review_id)
-);
-
 create table status_of (
   status_id int not null references statues (item_id),
   facilities_id int not null references facilities (id),
