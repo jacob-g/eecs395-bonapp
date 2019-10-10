@@ -1,8 +1,12 @@
 from libs import login
-from flask import redirect
+from flask import redirect, abort
 
 type = "action"
 
-def action(db):
+def preempt(db, metadata):
+	if metadata["login_state"].user is None:
+		return abort(404)
+
+def action(db, metadata):
 	login.LoginState.logout_user()
 	return redirect("/")

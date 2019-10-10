@@ -11,6 +11,16 @@ class DiningHall:
 		
 	def inventory(self, time):
 		return
+	
+class MenuItemServed:
+	def __init__(self, serve_id, menu_item, meal):
+		self.serve_id = serve_id
+		self.menu_item = menu_item
+		self.meal = meal
+		
+	@staticmethod
+	def from_db(row, dining_hall):
+		return MenuItemServed(row["serves.id"], MenuItem.from_db(row, dining_hall), row["serves.meal"])
 		
 class MenuItem:
 	def __init__(self, id, name, dining_hall):
@@ -23,14 +33,15 @@ class MenuItem:
 		return MenuItem(row["menu_item.id"], row["menu_item.name"], dining_hall)	
 	
 class Review:
-	def __init__(self, rating, comments, menu_item):
+	def __init__(self, rating, comments, menu_item, reviewer):
 		self.rating = rating
 		self.comments = comments
 		self.menu_item = menu_item
+		self.reviewer = reviewer
 	
 	@staticmethod
 	def from_db(row, menu_item):
-		return Review(row["review.rating"], row["review.comments"], menu_item)
+		return Review(row["review.rating"], row["review.comments"], menu_item, User(row["user.id"], row["user.name"]))
 	
 	def add_to_db(self, db):
 		return db.add_review(self)
