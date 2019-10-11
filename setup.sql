@@ -81,7 +81,7 @@ create table serves (
   menu_item_id int not null references menu_item (id),
   dining_hall_name varchar(225) not null references dining_hall (name),
   meal varchar(225) not null references menu_item (meal),
-  date_of timestamp not null
+  date_of date not null
 );
 
 -- restrict ratings to (0,5)
