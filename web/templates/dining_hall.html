@@ -5,4 +5,8 @@
 {% for served_item in page_data["menu"] %}
 {{served_item.menu_item.name}} (<a href="/reviews/specific/{{ served_item.serve_id }}">Reviews</a>)
 {% endfor %}
+<h3>Recent Statuses</h3>
+{% for status in page_data["inventory"] %}
+{{status.item.name}} {{status.status}}
+{% endfor %}
 {% endblock %}

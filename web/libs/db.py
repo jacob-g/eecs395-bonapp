@@ -72,10 +72,19 @@ class DBConnector:
 	def allowed_scores(self):
 		scores = []
 		
-		for row in self.__query("SELECT score FROM allowed_scores ORDER BY score ASC"):
-			scores.append(row[0])
+		for (score,) in self.__query("SELECT score FROM allowed_scores ORDER BY score ASC"):
+			scores.append(score)
 			
 		return scores
+	
+	def inventory_for(self, dining_hall):
+		inventories = []
+		
+		row = {}
+		for (row["inventory_item.id"], row["inventory_item.name"], row["status"]) in self.__query("SELECT inventory_item.id,inventory_item.name,AVG(statuses.status) AS status FROM inventory_item LEFT JOIN statuses ON inventory_item.id=statuses.item_id AND statuses.dining_hall=%s AND statuses.time_stamp>(NOW() - INTERVAL 30 MINUTE) GROUP BY inventory_item.id", (dining_hall.name, )):
+			inventories.append(objects.InventoryStatus(objects.InventoryItem.from_db(row), row["status"]))
+		
+		return inventories
 		
 	def reviews_for(self, menu_item):
 		reviews = []

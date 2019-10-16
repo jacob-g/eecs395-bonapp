@@ -1,3 +1,17 @@
+class InventoryItem:
+	def __init__(self, item_id, name):
+		self.item_id = item_id
+		self.name = name
+		
+	@staticmethod
+	def from_db(row):
+		return InventoryItem(row["inventory_item.id"], row["inventory_item.name"])
+
+class InventoryStatus:
+	def __init__(self, item, status):
+		self.item = item
+		self.status = status
+
 class DiningHall:
 	def __init__(self, name):
 		self.name = name
