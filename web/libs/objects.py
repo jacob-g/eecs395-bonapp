@@ -1,3 +1,4 @@
+from builtins import staticmethod
 class InventoryItem:
 	def __init__(self, item_id, name):
 		self.item_id = item_id
@@ -19,12 +20,20 @@ class DiningHall:
 	@staticmethod
 	def from_db(row):
 		return DiningHall(format(row["dining_hall.name"]))
+	
+	@staticmethod
+	def from_list(dining_hall_list, dining_hall_name):
+		dining_hall_candidates = [dining_hall for dining_hall in dining_hall_list if dining_hall.name == dining_hall_name]
+		if len(dining_hall_candidates) == 0:
+			return None
+		else:
+			return dining_hall_candidates[0]
 		
 	def menu(self, date, db):
 		return db.menu_for(self, date)
 		
-	def inventory(self, time):
-		return
+	def inventory(self, minutes, db):
+		return db.inventory_for(self, minutes)
 	
 class MenuItemServed:
 	def __init__(self, serve_id, menu_item, meal):
@@ -61,8 +70,8 @@ class Review:
 		return db.add_review(self)
 
 class User:
-	def __init__(self, id, name):
-		self.id = id
+	def __init__(self, user_id, name):
+		self.user_id = user_id
 		self.name = name
 		
 	def to_dictionary(self):

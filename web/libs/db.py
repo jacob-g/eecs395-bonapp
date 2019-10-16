@@ -23,6 +23,13 @@ class DBConnector:
 			cursor.close()
 			
 		return result
+	
+	def __single_row(self, query, args, constructor):
+		result = self.__query(query, args)
+		if len(result) == 1:
+			return constructor(result[0])
+		else:
+			return None
 		
 	#TODO: factor out some of this logic into a lambda function representing a constructor
 	def dining_halls(self):
@@ -77,14 +84,21 @@ class DBConnector:
 			
 		return scores
 	
-	def inventory_for(self, dining_hall):
+	def inventory_for(self, dining_hall, minutes):
 		inventories = []
 		
 		row = {}
-		for (row["inventory_item.id"], row["inventory_item.name"], row["status"]) in self.__query("SELECT inventory_item.id,inventory_item.name,AVG(statuses.status) AS status FROM inventory_item LEFT JOIN statuses ON inventory_item.id=statuses.item_id AND statuses.dining_hall=%s AND statuses.time_stamp>(NOW() - INTERVAL 30 MINUTE) GROUP BY inventory_item.id", (dining_hall.name, )):
+		for (row["inventory_item.id"], row["inventory_item.name"], row["status"]) in self.__query("SELECT inventory_item.id,inventory_item.name,AVG(statuses.status) AS status FROM inventory_item LEFT JOIN statuses ON inventory_item.id=statuses.item_id AND statuses.dining_hall=%s AND statuses.time_stamp>(NOW() - INTERVAL %s MINUTE) GROUP BY inventory_item.id", (dining_hall.name, minutes)):
 			inventories.append(objects.InventoryStatus(objects.InventoryItem.from_db(row), row["status"]))
 		
 		return inventories
+	
+	def inventory_item(self, item_id):
+		return self.__single_row("SELECT inventory_item.id,inventory_item.name FROM inventory_item WHERE inventory_item.id=%s", (item_id, ), lambda row : objects.InventoryItem(row[0], row[1]))
+	
+	def add_status(self, dining_hall, inventory_item, status, user, minutes):
+		self.__query("INSERT INTO statuses(item_id,status,dining_hall,time_stamp,user) SELECT %s, %s, %s, NOW(), %s FROM DUAL WHERE (SELECT COUNT(1) FROM statuses WHERE user=%s AND dining_hall=%s AND item_id=%s AND time_stamp>(NOW() - INTERVAL %s MINUTE))=0", (inventory_item.item_id, status, dining_hall.name, user.user_id, user.user_id, dining_hall.name, inventory_item.item_id, minutes), True)
+		return
 		
 	def reviews_for(self, menu_item):
 		reviews = []
