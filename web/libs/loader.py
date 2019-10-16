@@ -1,7 +1,8 @@
 from libs import login
 from flask import request, render_template
+from libs.db import DBConnector
 
-def get_metadata(db):
+def get_metadata(db : DBConnector):
     return {
         "login_state": login.LoginState(db, request.args.get("ticket")),
         "allowed_scores": db.allowed_scores(),
@@ -9,7 +10,7 @@ def get_metadata(db):
     }
     
     
-def load_page(template, page_data_module, db, *args, **kwargs):
+def load_page(template : str, page_data_module, db : DBConnector, *args, **kwargs):
     metadata = get_metadata(db)
     
     preempt = page_data_module.preempt(db, metadata, *args, **kwargs)
