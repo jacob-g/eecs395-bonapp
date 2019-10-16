@@ -61,11 +61,7 @@ class DBConnector:
 		return menu_items
 		
 	def user_for(self, name):
-		res = self.__query("SELECT id, name FROM user WHERE name=%s LIMIT 1", (name))
-		if res.len() == 1:
-			return objects.User(res[0], res[1])
-		else:
-			return None
+		return self.__single_row("SELECT id, name FROM user WHERE name=%s LIMIT 1", (name,), lambda res : objects.User(res[0], res[1]))
 		
 	def add_user_if_not_exists(self, user):			
 		self.__query("INSERT INTO `user`(id, name) SELECT %s, %s FROM DUAL WHERE (SELECT COUNT(1) FROM user WHERE id=%s)=0", (user.id, user.name, user.id), True)
