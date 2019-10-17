@@ -22,7 +22,7 @@ routes = {
 	"/actions/leave_review": {"template": "empty.html", "behavior": add_review, "methods": ["POST"]},
 	"/actions/status/add/<dining_hall_name>/<item_id>/<status>": {"template": "empty.html", "behavior": add_status, "methods": ["GET"]},
 	"/dining_hall/<dining_hall_name>": {"template": "hall.html", "behavior": dining_hall_page, "methods": ["GET"]},
-	"/reviews/specific/<serves_id>": {"template": "reviews.html", "behavior": view_reviews, "methods": ["GET"]}
+	"/reviews/specific/<serves_id>": {"template": "review.html", "behavior": view_reviews, "methods": ["GET"]}
 }
 
 loader_funcs = []
