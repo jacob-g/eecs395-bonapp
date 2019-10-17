@@ -85,7 +85,6 @@ create table allowed_scores (
 );
 
 insert into allowed_scores (score) values (1), (2), (3), (4), (5);
-
 alter table review add foreign key (rating) references allowed_scores (score);
 
 -- add foreign key constraints
