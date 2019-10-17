@@ -65,12 +65,12 @@ class DBConnector:
 		return self.__single_row("SELECT id, name FROM user WHERE name=%s LIMIT 1", (name,), lambda res : objects.User(res[0], res[1]))
 		
 	def add_user_if_not_exists(self, user : objects.User):			
-		self.__query("INSERT INTO `user`(id, name) SELECT %s, %s FROM DUAL WHERE (SELECT COUNT(1) FROM user WHERE id=%s)=0", (user.id, user.name, user.id), True)
+		self.__query("INSERT INTO `user`(id, name) SELECT %s, %s FROM DUAL WHERE (SELECT COUNT(1) FROM user WHERE id=%s)=0", (user.user_id, user.name, user.user_id), True)
 		return
 		
 	#TODO: encapsulate all the data with the Review object
 	def add_review(self, user : objects.User, rating : int, comments : str, serves_id : int):
-		self.__query("INSERT INTO review(user, rating, comments, item) VALUES(%s, %s, %s, %s)", (user.id, rating, comments, serves_id), True)
+		self.__query("INSERT INTO review(user, rating, comments, item) VALUES(%s, %s, %s, %s)", (user.user_id, rating, comments, serves_id), True)
 		return
 	
 	def allowed_scores(self):

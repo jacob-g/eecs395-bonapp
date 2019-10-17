@@ -63,7 +63,7 @@ class User:
 		self.name = name
 		
 	def to_dictionary(self):
-		return {"id": self.id, "name": self.name}
+		return {"id": self.user_id, "name": self.name}
 	
 	def add_to_db(self, db):
 		return db.add_user_if_not_exists(self)
