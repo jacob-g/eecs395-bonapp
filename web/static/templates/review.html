@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description">    <title>Bon App - Contact Us</title>    
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-" crossorigin="anonymous">
+    
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+    <!--<![endif]-->
+    
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+    
+        <!--[if lte IE 8]>
+            <link rel="stylesheet" href="css/layouts/marketing-old-ie.css">
+        <![endif]-->
+        <!--[if gt IE 8]><!-->
+            <link rel="stylesheet" href="css/layouts/marketing.css">
+        <!--<![endif]-->
+</head>
+  
+  <div class="header">
+    <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
+        <a class="pure-menu-heading" href="">Bon App</a>
+
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item pure-menu-selected"><a href="#" class="pure-menu-link">Home</a></li>
+            <li class="pure-menu-item"><a href="#" class="pure-menu-link">Contact Page</a></li>
+            <li class="pure-menu-item"><a href="{{ metadata.login_state.login_url }}" class="pure-menu-link">Log In</a></li>
+        </ul>
+    </div>
+</div>
+  
+  <body>
+    <div class="content">
+        <h2 class="content-head is-center">Review: {{ page_data["served_item"].menu_item.name }} </h2>
+        <h3> {{ page_data["served_item"].menu_item.dining_hall.name }} </h3>
+        <div class="pure-g">
+            <div class="l-box-lrg pure-u-1 pure-u-md-2-5">
+                <form class="pure-form pure-form-stacked" action="/actions/leave_review" method="post" enctype="multipart/form-data">
+                    <fieldset>
+
+                        <label for="rating">Rating</label>
+                        <select id="rating" class="pure-input-1-2">
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </select>
+
+
+                        <label for="comment">Comment</label>
+                        <input id="comment" type="comment" placeholder="Your Comment">
+
+                        <button type="submit" class="pure-button"  value="Leave review">Send Comment</button>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div class="l-box-lrg pure-u-1 pure-u-md-3-5">
+                <h4>Contact Us</h4>
+                <p>
+                  Please reach out to Bon Appetit with any concerns about the dining hall facilities, staff, or food. We can be reached at <a href="mailto:bonappetit@case.edu">bonappetit@case.edu</a>.
+                </p>
+
+                <h4>Meal Plan Concerns</h4>
+                <p>
+                  If you have concerns about your meal plan, please contact Dining Services at <a href="mailto:mealplan@case.edu">mealplan@case.edu</a> or 216-368-5844.
+                </p>
+            </div>
+        </div>
+
+    </div>
+  </body>
+</html>
