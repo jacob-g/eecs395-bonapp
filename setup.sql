@@ -52,7 +52,7 @@ create table dining_hall (
   brunch varchar(225)
 );
 
-create table iventory_item (
+create table inventory_item (
   id int not null auto_increment primary key,
   name varchar(225) not null
 );
@@ -93,4 +93,4 @@ alter table review add foreign key (user) references user (id);
 alter table review add foreign key (item) references serves (id);
 alter table statuses add foreign key (item_id) references menu_item (id);
 alter table menu_item add foreign key (dining_hall) references dining_hall (name);
-alter table status add foreign key (item_id) references inventory_item (id);
+alter table statuses add foreign key (item_id) references inventory_item (id);
