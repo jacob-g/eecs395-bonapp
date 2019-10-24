@@ -1,40 +1,52 @@
 <!doctype html>
 <html lang="en">
   <head>
+    {% block head %}
     <!-- Required meta tags -->
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+    <!-- Pure CSS Framework -->
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-" crossorigin="anonymous">
+    
+    <title>Bon App</title>    
+    
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+    <!--<![endif]-->
+    
+        <!--[if lte IE 8]>
+            <link rel="stylesheet" href="css/layouts/marketing-old-ie.css">
+        <![endif]-->
+        <!--[if gt IE 8]><!-->
+            <link rel="stylesheet" href="css/layouts/marketing.css">
+        <!--<![endif]-->
+    
+    <div class="header">
+      <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
+          <a class="pure-menu-heading" href="">Bon App</a>
 
-    {% block head %}
-
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0a304e">
-      {% if metadata.login_state.user %}
-      <span class="navbar-brand">Welcome, {{ metadata.login_state.user.name }}. <a href="{{ metadata.login_state.logout_url }}">Log out</a></span>
-      {% else %}
-      <a class="navbar-brand" style="font-size: 2em" href="{{ metadata.login_state.login_url }}">Login</a>
-      {% endif %}
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-          </li>
-          {% for dining_hall in metadata.dining_halls %}
-          <li class="nav-item">
-            <a class="nav-link" href="/dining_hall/{{ dining_hall.name }}">{{ dining_hall.name }}</a>
-          </li>
-          {% endfor %}
-        </ul>
+          <ul class="pure-menu-list">
+              <li class="pure-menu-item pure-menu-selected"><a href="#" class="pure-menu-link">Home</a></li>
+              <li class="pure-menu-item"><a href="#" class="pure-menu-link">Contact Page</a></li>
+              <li class="pure-menu-item"><a href="{{ metadata.login_state.login_url }}" class="pure-menu-link">Log In</a></li>
+              {% if metadata.login_state.user %}
+                <li class="pure-menu-item"> Welcome, {{ metadata.login_state.user.name }}. <a href="{{ metadata.login_state.logout_url }}">Log Out</a></li>
+                <li class="pure-menu-item"> Create Alert </li>
+              {% else %}
+                <li class="pure-menu-item"><a class="navbar-brand" style="font-size: 2em" href="{{ metadata.login_state.login_url }}">Login</a></li>
+              {% endif %}
+          </ul>
       </div>
-    </nav>
-    {% endblock %}
-  </head>
+    </div>
+    {% end block head %}
+    
   <body>
     {% block content %} {% endblock %}
     <!-- Optional JavaScript -->
