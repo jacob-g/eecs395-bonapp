@@ -3,7 +3,6 @@ import datetime
 from libs import objects
 from torch.distributions.constraints import boolean
 from libs.objects import InventoryItem
-from builtins import None
 
 class DBConnector:
 	host="localhost"
