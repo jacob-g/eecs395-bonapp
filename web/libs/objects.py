@@ -85,3 +85,13 @@ class Review:
 	
 	def add_to_db(self, db):
 		return db.add_review(self)
+
+class AlertSubscription:
+	def __init__(self, user : User, menu_item : MenuItem):
+		self.user = user
+		self.menu_item = menu_item
+		
+	@staticmethod
+	def from_db(self, row : tuple):
+		#TODO: implement
+		return None

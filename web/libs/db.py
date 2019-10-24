@@ -2,6 +2,8 @@ import mysql.connector
 import datetime
 from libs import objects
 from torch.distributions.constraints import boolean
+from libs.objects import InventoryItem
+from builtins import None
 
 class DBConnector:
 	host="localhost"
@@ -11,7 +13,7 @@ class DBConnector:
 	def __init__(self):
 		self.link=mysql.connector.connect(host=self.host, user=self.username, password=self.password, database=self.dbname)
 		
-	def __query(self, query : str, args : tuple =(), makes_changes : boolean =False):
+	def __query(self, query : str, args : tuple =(), makes_changes : boolean = False):
 		cursor = self.link.cursor()
 		cursor.execute(query, args)
 		
@@ -25,7 +27,7 @@ class DBConnector:
 			
 		return result
 	
-	def __single_row(self, query : str, args : tuple, constructor):
+	def __single_row(self, query : str, args : tuple, constructor) -> tuple:
 		result = self.__query(query, args)
 		if len(result) == 1:
 			return constructor(result[0])
@@ -33,7 +35,7 @@ class DBConnector:
 			return None
 		
 	#TODO: factor out some of this logic into a lambda function representing a constructor
-	def dining_halls(self):
+	def dining_halls(self) -> list[objects.DiningHall]:
 		diningHalls = []
 		
 		row = {}
@@ -42,7 +44,7 @@ class DBConnector:
 			
 		return diningHalls
 	
-	def served_item(self, serves_id : int):
+	def served_item(self, serves_id : int) -> objects.MenuItemServed:
 		result = self.__query("SELECT serves.meal,menu_item.id,menu_item.name,dining_hall.name FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN dining_hall ON dining_hall.name=serves.dining_hall_name WHERE serves.id=%s ORDER BY menu_item.name ASC", (serves_id,))
 		
 		row = {}
@@ -52,7 +54,8 @@ class DBConnector:
 		else:
 			return None
 			
-	def menu_for(self, dining_hall : objects.DiningHall, date : datetime.date = datetime.date.today()):
+	#TODO: make this take no date by default
+	def menu_for(self, dining_hall : objects.DiningHall, date : datetime.date = datetime.date.today()) -> list[objects.MenuItemServed]:
 		menu_items = []
 				
 		row = {}
@@ -61,7 +64,7 @@ class DBConnector:
 			
 		return menu_items
 		
-	def user_for(self, name : str):
+	def user_for(self, name : str) -> objects.User:
 		return self.__single_row("SELECT id, name FROM user WHERE name=%s LIMIT 1", (name,), lambda res : objects.User(res[0], res[1]))
 		
 	def add_user_if_not_exists(self, user : objects.User):			
@@ -73,7 +76,7 @@ class DBConnector:
 		self.__query("INSERT INTO review(user, rating, comments, item) VALUES(%s, %s, %s, %s)", (user.user_id, rating, comments, serves_id), True)
 		return
 	
-	def allowed_scores(self):
+	def allowed_scores(self) -> list[int]:
 		scores = []
 		
 		for (score,) in self.__query("SELECT score FROM allowed_scores ORDER BY score ASC"):
@@ -81,7 +84,7 @@ class DBConnector:
 			
 		return scores
 	
-	def inventory_for(self, dining_hall : objects.DiningHall, minutes : int):
+	def inventory_for(self, dining_hall : objects.DiningHall, minutes : int) -> list[InventoryItem]:
 		inventories = []
 		
 		row = {}
@@ -90,14 +93,14 @@ class DBConnector:
 		
 		return inventories
 	
-	def inventory_item(self, item_id : int):
+	def inventory_item(self, item_id : int) -> objects.InventoryItem:
 		return self.__single_row("SELECT inventory_item.id,inventory_item.name FROM inventory_item WHERE inventory_item.id=%s", (item_id, ), lambda row : objects.InventoryItem(row[0], row[1]))
 	
 	def add_status(self, dining_hall : objects.DiningHall, inventory_item : objects.InventoryItem, status : int, user : objects.User, minutes : int):
 		self.__query("INSERT INTO statuses(item_id,status,dining_hall,time_stamp,user) SELECT %s, %s, %s, NOW(), %s FROM DUAL WHERE (SELECT COUNT(1) FROM statuses WHERE user=%s AND dining_hall=%s AND item_id=%s AND time_stamp>(NOW() - INTERVAL %s MINUTE))=0", (inventory_item.item_id, status, dining_hall.name, user.user_id, user.user_id, dining_hall.name, inventory_item.item_id, minutes), True)
 		return
 		
-	def reviews_for(self, menu_item : objects.MenuItem):
+	def reviews_for(self, menu_item : objects.MenuItem) -> list[objects.Review]:
 		reviews = []
 		
 		row = {}
@@ -105,3 +108,14 @@ class DBConnector:
 			reviews.append(objects.Review.from_db(row, menu_item))
 			
 		return reviews
+	
+	def add_alert(self, user : objects.User, menu_item : objects.MenuItem):
+		#TODO: implement this once we have the database structure
+		return None
+	
+	def alerts_for(self, user : objects.User) -> objects.AlertSubscription:
+		#TODO: implement this once we have the database structure
+		return None
+	
+	def remove_alert(self, alert : objects.AlertSubscription):
+		return None
