@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  {% extends 'base.html' %}
+  
+  <body>
+    <div class="content">
+        <h2 class="content-head is-center"> Alerts </h2>
+        <h3> {{ page_data["served_item"].menu_item.dining_hall.name }} </h3>
+        <div class="pure-g">
+            <div class="l-box-lrg pure-u-1 pure-u-md-2-5">
+                <form class="pure-form pure-form-stacked" action="FIX THIS" method="post" enctype="multipart/form-data">
+                    <fieldset>
+
+                        <label for="alert">Dining Hall</label>
+                        <select id="alert hall" class="pure-input-1-2">
+                            {% for dining_hall in metadata.dining_halls %}
+                              <option>{{ dining_hall.name }}</option>
+                            {% endfor %}
+                        </select>
+
+
+                        <label for="alert">Menu Hall</label>
+                        <select id="alert item" class="pure-input-1-2">
+                            {% for MENU ITEMS IN DINING HALL %}
+                              <option>{{ MENU ITEM NAME }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <button type="submit" class="pure-button"  value="Leave review">Send Comment</button>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div class="l-box-lrg pure-u-1 pure-u-md-3-5">
+                <h4>Alerts</h4>
+                <p>
+                  Select a menu item and dining hall from the dropdown menus to be alerted by email when that item will appear on the menu.
+                </p>
+            </div>
+        </div>
+
+    </div>
+  </body>
+</html>
