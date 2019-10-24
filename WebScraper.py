@@ -28,18 +28,18 @@ def serves_table(id, name, meal, date):
 
 #insert menu_item entities
 def insert_meal(name, dining_hall, meal):
-    query = "insert into menu_item (name, dining_hall, meal) values (%s, %s, %s)"
-    args = (name, dining_hall, meal)
+    query = "insert into menu_item (name) values (%s)"
+    args = (name,)
 
     #retrieve menu_item_ids
-    retrieve = "select id from menu_item where name=%s and dining_hall=%s and meal=%s"
+    retrieve = "select id from menu_item where name=%s"
 
     #retrieve current date
     now = datetime.now()
     date = now.strftime('%Y-%m-%d')
 
     cursor = connection.cursor()
-    cursor.execute(query,args)
+    cursor.execute(query,args) #insert into menu_item
 
     cursor.execute(retrieve,args) #retrieve menu_item_id
     item_id = cursor.fetchall()
