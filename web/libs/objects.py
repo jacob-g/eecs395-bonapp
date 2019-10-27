@@ -87,11 +87,11 @@ class Review:
 		return db.add_review(self)
 
 class AlertSubscription:
-	def __init__(self, user : User, menu_item : MenuItem):
+	def __init__(self, alert_id : int, user : User, menu_item : MenuItem):
+		self.alert_id = alert_id
 		self.user = user
 		self.menu_item = menu_item
 		
 	@staticmethod
 	def from_db(row : tuple, user : User):
-		return AlertSubscription(user, MenuItem.from_db(row))
-		return None
+		return AlertSubscription(row["alert.id"], user, MenuItem.from_db(row))
