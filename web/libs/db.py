@@ -60,6 +60,8 @@ class DBConnector:
 		row = {}
 		for (row["serves.id"], row["serves.meal"], row["menu_item.id"], row["menu_item.name"]) in self.__query("SELECT serves.id,serves.meal,menu_item.id,menu_item.name FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id WHERE serves.dining_hall_name=%s AND serves.date_of=%s ORDER BY menu_item.name ASC", (dining_hall.name, date)):
 			menu_items.append(objects.MenuItemServed.from_db(row, dining_hall))
+		
+		print(menu_items)
 			
 		return menu_items
 		
@@ -108,12 +110,16 @@ class DBConnector:
 			
 		return reviews
 	
-	def add_alert(self, user : objects.User, menu_item : objects.MenuItem):
-		#TODO: implement this once we have the database structure
-		return None
+	def add_alert(self, user_id, menu_item_id):
+		self.__query("INSERT INTO alert(user, menu_item_id) VALUES(%s, %s)", (user_id, menu_item_id), True)
+		return
 	
 	def alerts_for(self, user : objects.User):
-		#TODO: implement this once we have the database structure
+		alerts = []
+		
+		row = {}
+		for () in self.__query("SELECT  FROM alert LEFT JOIN menu_item ON menu_item.id=review.menu_item_id"):
+			alerts.add(objects.AlertSubscription.from_db(row))
 		return None
 	
 	def remove_alert(self, alert : objects.AlertSubscription):

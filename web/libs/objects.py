@@ -38,24 +38,24 @@ class DiningHall:
 		return db.inventory_for(self, minutes)
 	
 class MenuItem:
-	def __init__(self, menu_item_id : int, name : str, dining_hall : DiningHall):
+	def __init__(self, menu_item_id : int, name : str):
 		self.id = menu_item_id
 		self.name = name
-		self.dining_hall = dining_hall
 		
 	@staticmethod
-	def from_db(row : tuple, dining_hall : DiningHall):
-		return MenuItem(row["menu_item.id"], row["menu_item.name"], dining_hall)	
+	def from_db(row : tuple):
+		return MenuItem(row["menu_item.id"], row["menu_item.name"])	
 	
 class MenuItemServed:
-	def __init__(self, serve_id : int, menu_item : MenuItem, meal : str):
+	def __init__(self, serve_id : int, menu_item : MenuItem, meal : str, dining_hall : DiningHall):
 		self.serve_id = serve_id
 		self.menu_item = menu_item
 		self.meal = meal
+		self.dining_hall = dining_hall
 		
 	@staticmethod
 	def from_db(row : dict, dining_hall : DiningHall):
-		return MenuItemServed(row["serves.id"], MenuItem.from_db(row, dining_hall), row["serves.meal"])
+		return MenuItemServed(row["serves.id"], MenuItem.from_db(row), row["serves.meal"], dining_hall)
 	
 class User:
 	def __init__(self, user_id : str, name : str):
@@ -92,6 +92,6 @@ class AlertSubscription:
 		self.menu_item = menu_item
 		
 	@staticmethod
-	def from_db(self, row : tuple):
-		#TODO: implement
+	def from_db(row : tuple):
+		return AlertSubscription(row, MenuItem.from_db(row))
 		return None
