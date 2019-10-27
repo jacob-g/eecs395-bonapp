@@ -64,6 +64,15 @@ class DBConnector:
 		print(menu_items)
 			
 		return menu_items
+	
+	def all_menu_items(self):
+		menu_items = []
+		
+		row = {}
+		for (row["menu_item.id"], row["menu_item.name"]) in self.__query("SELECT menu_item.id,menu_item.name FROM menu_item ORDER BY menu_item.name ASC"):
+			menu_items.append(objects.MenuItem.from_db(row))
+			
+		return menu_items
 		
 	def user_for(self, user_id : str):
 		return self.__single_row("SELECT id, name FROM user WHERE id=%s LIMIT 1", (user_id,), lambda res : objects.User(res[0], res[1]))
@@ -118,8 +127,9 @@ class DBConnector:
 		alerts = []
 		
 		row = {}
-		for (row["alert.id"], row["menu_item.id"], row["menu_item.name"]) in self.__query("SELECT alert.id,menu_item.id,menu_item.name FROM alert LEFT JOIN menu_item ON menu_item.id=review.menu_item_id"):
-			alerts.add(objects.AlertSubscription.from_db(row, user))
+		for (row["alert.id"], row["menu_item.id"], row["menu_item.name"]) in self.__query("SELECT alert.id,menu_item.id,menu_item.name FROM alert LEFT JOIN menu_item ON menu_item.id=alert.menu_item_id"):
+			alerts.append(objects.AlertSubscription.from_db(row, user))
+			
 		return alerts
 	
 	def remove_alert(self, alert : objects.AlertSubscription):
