@@ -44,12 +44,12 @@ class DBConnector:
 		return diningHalls
 	
 	def served_item(self, serves_id : int):
-		result = self.__query("SELECT serves.meal,menu_item.id,menu_item.name,dining_hall.name FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN dining_hall ON dining_hall.name=serves.dining_hall_name WHERE serves.id=%s ORDER BY menu_item.name ASC", (serves_id,))
+		result = self.__query("SELECT serves.id,serves.meal,menu_item.id,menu_item.name,dining_hall.name FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN dining_hall ON dining_hall.name=serves.dining_hall_name WHERE serves.id=%s ORDER BY menu_item.name ASC", (serves_id,))
 		
 		row = {}
 		if len(result) == 1:
-			(row["serves.meal"], row["menu_item.id"], row["menu_item.name"], row["dining_hall.name"]) = result[0]
-			return objects.MenuItemServed(serves_id, objects.MenuItem.from_db(row, objects.DiningHall.from_db(row)), row["serves.meal"])
+			(row["serves.id"], row["serves.meal"], row["menu_item.id"], row["menu_item.name"], row["dining_hall.name"]) = result[0]
+			return objects.MenuItemServed.from_db(row, objects.DiningHall.from_db(row))
 		else:
 			return None
 			
@@ -73,6 +73,9 @@ class DBConnector:
 			menu_items.append(objects.MenuItem.from_db(row))
 			
 		return menu_items
+	
+	def menu_item(self, menu_item_id):
+		return self.__single_row("SELECT menu_item.name FROM menu_item WHERE id=%s", (menu_item_id,), lambda res : objects.MenuItem(id, res[0]))
 		
 	def user_for(self, user_id : str):
 		return self.__single_row("SELECT id, name FROM user WHERE id=%s LIMIT 1", (user_id,), lambda res : objects.User(res[0], res[1]))
@@ -114,13 +117,13 @@ class DBConnector:
 		reviews = []
 		
 		row = {}
-		for (row["review.rating"], row["review.comments"], row["user.id"], row["user.name"]) in self.__query("SELECT review.rating,review.comments,user.id,user.name FROM review LEFT JOIN review_of ON review_of.review_id=review.id LEFT JOIN serves ON serves.id=review.item LEFT JOIN user ON user.id=review.user WHERE serves.menu_item_id=%s", (menu_item.id,)):
+		for (row["review.rating"], row["review.comments"], row["user.id"], row["user.name"]) in self.__query("SELECT review.rating,review.comments,user.id,user.name FROM review LEFT JOIN review_of ON review_of.review_id=review.id LEFT JOIN serves ON serves.id=review.item LEFT JOIN user ON user.id=review.user WHERE serves.menu_item_id=%s", (menu_item.menu_item_id,)):
 			reviews.append(objects.Review.from_db(row, menu_item))
 			
 		return reviews
 	
-	def add_alert(self, user_id, menu_item_id):
-		self.__query("INSERT INTO alert(user, menu_item_id) VALUES(%s, %s)", (user_id, menu_item_id), True)
+	def add_alert(self, user : objects.User, menu_item_id):
+		self.__query("INSERT INTO alert(user, menu_item_id) SELECT %s, %s FROM DUAL WHERE (SELECT COUNT(1) FROM alert WHERE user=%s AND menu_item_id=%s)=0", (user.user_id, menu_item_id, user.user_id, menu_item_id), True)
 		return
 	
 	def alerts_for(self, user : objects.User):

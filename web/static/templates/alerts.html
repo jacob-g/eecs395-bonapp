@@ -17,7 +17,7 @@
                   Select a menu item and dining hall from the dropdown menus to be alerted by email when that item will appear on the menu.
                 </p>
                 {% for menu_item in page_data["all_menu_items"] %}
-                <p>{{ menu_item.name }}</p>
+                <p>{{ menu_item.name }} <a href="/alerts/add/{{ menu_item.menu_item_id }}">Add alert</a></p>
                 {% endfor %}
             </div>
         </div>

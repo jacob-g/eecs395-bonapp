@@ -39,7 +39,7 @@ class DiningHall:
 	
 class MenuItem:
 	def __init__(self, menu_item_id : int, name : str):
-		self.id = menu_item_id
+		self.menu_item_id = menu_item_id
 		self.name = name
 		
 	@staticmethod
