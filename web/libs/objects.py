@@ -92,6 +92,6 @@ class AlertSubscription:
 		self.menu_item = menu_item
 		
 	@staticmethod
-	def from_db(row : tuple):
-		return AlertSubscription(row, MenuItem.from_db(row))
+	def from_db(row : tuple, user : User):
+		return AlertSubscription(user, MenuItem.from_db(row))
 		return None

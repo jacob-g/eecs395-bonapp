@@ -118,8 +118,8 @@ class DBConnector:
 		alerts = []
 		
 		row = {}
-		for () in self.__query("SELECT  FROM alert LEFT JOIN menu_item ON menu_item.id=review.menu_item_id"):
-			alerts.add(objects.AlertSubscription.from_db(row))
+		for (row["menu_item.id"], row["menu_item.name"]) in self.__query("SELECT menu_item.id,menu_item.name FROM alert LEFT JOIN menu_item ON menu_item.id=review.menu_item_id"):
+			alerts.add(objects.AlertSubscription.from_db(row, user))
 		return None
 	
 	def remove_alert(self, alert : objects.AlertSubscription):
