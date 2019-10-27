@@ -56,7 +56,6 @@ create table inventory_item (
 );
 
 -- represent relations
-
 create table inventories (
   user_id varchar(225) not null references user (id),
   status_id int not null references status (id),
@@ -75,6 +74,12 @@ create table serves (
   dining_hall_name varchar(225) not null references dining_hall (name),
   meal varchar(225) not null,
   date_of date not null
+);
+
+create table alert (
+  id int not null auto_increment primary key,
+  user varchar(225) not null references user (id),
+  menu_item_id int not null references menu_item (id)
 );
 
 -- restrict ratings to (0,5)
