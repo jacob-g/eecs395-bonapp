@@ -135,6 +135,6 @@ class DBConnector:
 			
 		return alerts
 	
-	def remove_alert(self, alert : objects.AlertSubscription):
-		self.__query("DELETE FROM alert WHERE id=%s", (alert.alert_id, ), True)
+	def remove_alert(self, alert_id : objects.AlertSubscription, user : objects.User):
+		self.__query("DELETE FROM alert WHERE id=%s AND user=%s", (alert_id, user.user_id), True)
 		return

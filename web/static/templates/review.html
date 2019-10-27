@@ -2,14 +2,15 @@
 {% block content %}
     <div class="content">
         <h2 class="content-head is-center">Review: {{ page_data["served_item"].menu_item.name }} </h2>
-        <h3> {{ page_data["served_item"].menu_item.dining_hall.name }} </h3>
+        <h3> {{ page_data["served_item"].dining_hall.name }} </h3>
         <div class="pure-g">
             <div class="l-box-lrg pure-u-1 pure-u-md-2-5">
                 <form class="pure-form pure-form-stacked" action="/actions/leave_review" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="serves_id" value="{{ page_data["served_item"].serve_id }}">
                     <fieldset>
 
                         <label for="rating">Rating</label>
-                        <select id="rating" class="pure-input-1-2">
+                        <select id="rating" name="rating" class="pure-input-1-2">
                             <option>1</option>
                             <option>2</option>
                             <option>3</option>
@@ -19,7 +20,7 @@
 
 
                         <label for="comment">Comment</label>
-                        <input id="comment" type="comment" placeholder="Your Comment">
+                        <input id="comment" name="comment" type="text" placeholder="Your Comment">
 
                         <button type="submit" class="pure-button"  value="Leave review">Send Comment</button>
                     </fieldset>

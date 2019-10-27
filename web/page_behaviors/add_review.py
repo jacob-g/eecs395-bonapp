@@ -12,6 +12,6 @@ def preempt(db : DBConnector, metadata : dict):
 def action(db : DBConnector, metadata : dict):
     serves_id = request.form["serves_id"]
     
-    db.add_review(metadata["login_state"].user, request.form["score"], request.form["comments"], serves_id)
+    db.add_review(metadata["login_state"].user, request.form["rating"], request.form["comment"], serves_id)
     
     return redirect(f"/reviews/specific/{serves_id}")
