@@ -9,4 +9,7 @@ def preempt(db : DBConnector, metadata : dict, serves_id : int):
 
 def page_data(db : DBConnector, metadata : dict, serves_id : int):
     served_item = db.served_item(serves_id)
+    
+    assert served_item is not None
+    
     return {"served_item": served_item, "reviews": db.reviews_for(served_item)}
