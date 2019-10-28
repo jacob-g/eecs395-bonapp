@@ -9,4 +9,4 @@ def preempt(db : DBConnector, metadata : dict, serves_id : int):
 
 def page_data(db : DBConnector, metadata : dict, serves_id : int):
     served_item = db.served_item(serves_id)
-    return {"served_item": served_item, "reviews": db.reviews_for(served_item.menu_item)}
+    return {"served_item": served_item, "reviews": db.reviews_for(served_item)}

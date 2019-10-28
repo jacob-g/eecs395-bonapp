@@ -39,6 +39,14 @@
                 </p>
             </div>
         </div>
+        
+        <div class="pure-g">
+        	<div class="box pure-u-1">
+        	{% for review in page_data["reviews"] %}
+        	<p>{{ review.comments }}</p>
+        	{% endfor %}
+        	</div>
+        </div>
 
     </div>
 {% endblock %}

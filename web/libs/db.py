@@ -55,18 +55,16 @@ class DBConnector:
 			
 	#TODO: make this take no date by default
 	def menu_for(self, dining_hall : objects.DiningHall, date : datetime.date = datetime.date.today()):
-		menu_items = []
+		menu_items : list[MenuItem] = []
 				
 		row = {}
 		for (row["serves.id"], row["serves.meal"], row["menu_item.id"], row["menu_item.name"]) in self.__query("SELECT serves.id,serves.meal,menu_item.id,menu_item.name FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id WHERE serves.dining_hall_name=%s AND serves.date_of=%s ORDER BY menu_item.name ASC", (dining_hall.name, date)):
 			menu_items.append(objects.MenuItemServed.from_db(row, dining_hall))
-		
-		print(menu_items)
-			
+					
 		return menu_items
 	
 	def all_menu_items(self):
-		menu_items = []
+		menu_items : list[MenuItem] = []
 		
 		row = {}
 		for (row["menu_item.id"], row["menu_item.name"]) in self.__query("SELECT menu_item.id,menu_item.name FROM menu_item ORDER BY menu_item.name ASC"):
@@ -113,13 +111,13 @@ class DBConnector:
 		self.__query("INSERT INTO statuses(item_id,status,dining_hall,time_stamp,user) SELECT %s, %s, %s, NOW(), %s FROM DUAL WHERE (SELECT COUNT(1) FROM statuses WHERE user=%s AND dining_hall=%s AND item_id=%s AND time_stamp>(NOW() - INTERVAL %s MINUTE))=0", (inventory_item.item_id, status, dining_hall.name, user.user_id, user.user_id, dining_hall.name, inventory_item.item_id, minutes), True)
 		return
 		
-	def reviews_for(self, menu_item : objects.MenuItem):
+	def reviews_for(self, served_menu_item : objects.MenuItemServed):
 		reviews = []
 		
 		row = {}
-		for (row["review.rating"], row["review.comments"], row["user.id"], row["user.name"]) in self.__query("SELECT review.rating,review.comments,user.id,user.name FROM review LEFT JOIN review_of ON review_of.review_id=review.id LEFT JOIN serves ON serves.id=review.item LEFT JOIN user ON user.id=review.user WHERE serves.menu_item_id=%s", (menu_item.menu_item_id,)):
-			reviews.append(objects.Review.from_db(row, menu_item))
-			
+		for (row["review.rating"], row["review.comments"], row["user.id"], row["user.name"]) in self.__query("SELECT review.rating,review.comments,user.id,user.name FROM review LEFT JOIN review_of ON review_of.review_id=review.id LEFT JOIN serves ON serves.id=review.item LEFT JOIN user ON user.id=review.user WHERE serves.menu_item_id=%s", (served_menu_item.menu_item.menu_item_id,)):
+			reviews.append(objects.Review.from_db(row, served_menu_item))
+						
 		return reviews
 	
 	def add_alert(self, user : objects.User, menu_item_id):

@@ -3,7 +3,7 @@ import datetime
 
 class DiningHall:
 	def __init__(self, name : str):
-		self.name = name
+		self.name : str = name
 		
 	@staticmethod
 	def from_db(row : dict):
@@ -11,7 +11,7 @@ class DiningHall:
 	
 	@staticmethod
 	def from_list(dining_hall_list : list, dining_hall_name : str):
-		dining_hall_candidates = [dining_hall for dining_hall in dining_hall_list if dining_hall.name == dining_hall_name]
+		dining_hall_candidates : list[DiningHall] = [dining_hall for dining_hall in dining_hall_list if dining_hall.name == dining_hall_name]
 		if len(dining_hall_candidates) == 0:
 			return None
 		else:
@@ -25,8 +25,8 @@ class DiningHall:
 	
 class InventoryItem:
 	def __init__(self, item_id : int, name : str):
-		self.item_id = item_id
-		self.name = name
+		self.item_id : int = item_id
+		self.name : str = name
 		
 	@staticmethod
 	def from_db(row : dict):
@@ -34,9 +34,9 @@ class InventoryItem:
 
 class InventoryStatus:
 	def __init__(self, item : InventoryItem, dining_hall : DiningHall, status : int):
-		self.item = item
-		self.status = status
-		self.dining_hall = dining_hall
+		self.item : str = item
+		self.status : int = status
+		self.dining_hall : DiningHall = dining_hall
 	
 	@staticmethod
 	def from_db(row : tuple, dining_hall : DiningHall):
@@ -44,8 +44,8 @@ class InventoryStatus:
 	
 class MenuItem:
 	def __init__(self, menu_item_id : int, name : str):
-		self.menu_item_id = menu_item_id
-		self.name = name
+		self.menu_item_id : int = menu_item_id
+		self.name : str = name
 		
 	@staticmethod
 	def from_db(row : tuple):
@@ -53,10 +53,10 @@ class MenuItem:
 	
 class MenuItemServed:
 	def __init__(self, serve_id : int, menu_item : MenuItem, meal : str, dining_hall : DiningHall):
-		self.serve_id = serve_id
-		self.menu_item = menu_item
-		self.meal = meal
-		self.dining_hall = dining_hall
+		self.serve_id : int = serve_id
+		self.menu_item : MenuItem = menu_item
+		self.meal : str = meal
+		self.dining_hall : DiningHall = dining_hall
 		
 	@staticmethod
 	def from_db(row : dict, dining_hall : DiningHall):
@@ -64,8 +64,8 @@ class MenuItemServed:
 	
 class User:
 	def __init__(self, user_id : str, name : str):
-		self.user_id = user_id
-		self.name = name
+		self.user_id : str = user_id
+		self.name : str = name
 		
 	def to_dictionary(self):
 		return {"id": self.user_id, "name": self.name}
@@ -78,14 +78,14 @@ class User:
 		return User(in_dict["id"], in_dict["name"])
 	
 class Review:
-	def __init__(self, rating : int, comments : str, menu_item : MenuItem, reviewer : User):
-		self.rating = rating
-		self.comments = comments
-		self.menu_item = menu_item
-		self.reviewer = reviewer
+	def __init__(self, rating : int, comments : str, menu_item : MenuItemServed, reviewer : User):
+		self.rating : int = rating
+		self.comments : str = comments
+		self.menu_item : MenuItemServed = menu_item
+		self.reviewer : User = reviewer
 	
 	@staticmethod
-	def from_db(row : tuple, menu_item : MenuItem):
+	def from_db(row : tuple, menu_item : MenuItemServed):
 		return Review(row["review.rating"], row["review.comments"], menu_item, User(row["user.id"], row["user.name"]))
 	
 	def add_to_db(self, db):
@@ -93,9 +93,9 @@ class Review:
 
 class AlertSubscription:
 	def __init__(self, alert_id : int, user : User, menu_item : MenuItem):
-		self.alert_id = alert_id
-		self.user = user
-		self.menu_item = menu_item
+		self.alert_id : int = alert_id
+		self.user : User = user
+		self.menu_item : MenuItem = menu_item
 		
 	@staticmethod
 	def from_db(row : tuple, user : User):
