@@ -101,8 +101,8 @@ class DBConnector:
 		inventories = []
 		
 		row = {}
-		for (row["inventory_item.id"], row["inventory_item.name"], row["status"]) in self.__query("SELECT inventory_item.id,inventory_item.name,AVG(statuses.status) AS status FROM inventory_item LEFT JOIN statuses ON inventory_item.id=statuses.item_id AND statuses.dining_hall=%s AND statuses.time_stamp>(NOW() - INTERVAL %s MINUTE) GROUP BY inventory_item.id", (dining_hall.name, minutes)):
-			inventories.append(objects.InventoryStatus(objects.InventoryItem.from_db(row), row["status"]))
+		for (row["inventory_item.id"], row["inventory_item.name"], row["statuses.status"]) in self.__query("SELECT inventory_item.id,inventory_item.name,AVG(statuses.status) AS status FROM inventory_item LEFT JOIN statuses ON inventory_item.id=statuses.item_id AND statuses.dining_hall=%s AND statuses.time_stamp>(NOW() - INTERVAL %s MINUTE) GROUP BY inventory_item.id", (dining_hall.name, minutes)):
+			inventories.append(objects.InventoryStatus.from_db(row, dining_hall))
 		
 		return inventories
 	

@@ -1,20 +1,6 @@
 from builtins import staticmethod
 import datetime
 
-class InventoryItem:
-	def __init__(self, item_id : int, name : str):
-		self.item_id = item_id
-		self.name = name
-		
-	@staticmethod
-	def from_db(row : dict):
-		return InventoryItem(row["inventory_item.id"], row["inventory_item.name"])
-
-class InventoryStatus:
-	def __init__(self, item : InventoryItem, status : int):
-		self.item = item
-		self.status = status
-
 class DiningHall:
 	def __init__(self, name : str):
 		self.name = name
@@ -36,6 +22,25 @@ class DiningHall:
 		
 	def inventory(self, minutes : int, db):
 		return db.inventory_for(self, minutes)
+	
+class InventoryItem:
+	def __init__(self, item_id : int, name : str):
+		self.item_id = item_id
+		self.name = name
+		
+	@staticmethod
+	def from_db(row : dict):
+		return InventoryItem(row["inventory_item.id"], row["inventory_item.name"])
+
+class InventoryStatus:
+	def __init__(self, item : InventoryItem, dining_hall : DiningHall, status : int):
+		self.item = item
+		self.status = status
+		self.dining_hall = dining_hall
+	
+	@staticmethod
+	def from_db(row : tuple, dining_hall : DiningHall):
+		return InventoryStatus(InventoryItem.from_db(row), dining_hall, row["statuses.status"])
 	
 class MenuItem:
 	def __init__(self, menu_item_id : int, name : str):
