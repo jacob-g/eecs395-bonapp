@@ -54,18 +54,18 @@ class DBConnector:
 		return self.__multiple_rows("SELECT name FROM dining_hall ORDER BY name ASC", (), ( "dining_hall.name", ), lambda row : objects.DiningHall.from_db(row))
 	
 	def served_item(self, serves_id : int):
-		result = self.__query("SELECT serves.id,serves.meal,menu_item.id,menu_item.name,dining_hall.name FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN dining_hall ON dining_hall.name=serves.dining_hall_name WHERE serves.id=%s ORDER BY menu_item.name ASC", (serves_id,))
+		result = self.__query("SELECT serves.id,serves.meal,menu_item.id,menu_item.name,dining_hall.name,AVG(review.rating) FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN review ON review.item=serves.id LEFT JOIN dining_hall ON dining_hall.name=serves.dining_hall_name WHERE serves.id=%s ORDER BY menu_item.name ASC", (serves_id,))
 		
 		row = {}
 		if len(result) == 1:
-			(row["serves.id"], row["serves.meal"], row["menu_item.id"], row["menu_item.name"], row["dining_hall.name"]) = result[0]
+			(row["serves.id"], row["serves.meal"], row["menu_item.id"], row["menu_item.name"], row["dining_hall.name"], row["average_rating"]) = result[0]
 			return objects.MenuItemServed.from_db(row, objects.DiningHall.from_db(row))
 		else:
 			return None
 			
 	#TODO: make this take no date by default
 	def menu_for(self, dining_hall : objects.DiningHall, date : datetime.date = datetime.date.today()):
-		return self.__multiple_rows("SELECT serves.id,serves.meal,menu_item.id,menu_item.name FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id WHERE serves.dining_hall_name=%s AND serves.date_of=%s ORDER BY menu_item.name ASC", (dining_hall.name, date), ("serves.id", "serves.meal", "menu_item.id", "menu_item.name"), lambda row : objects.MenuItemServed.from_db(row, dining_hall))
+		return self.__multiple_rows("SELECT serves.id,serves.meal,menu_item.id,menu_item.name,AVG(review.rating) FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN review ON review.item=serves.id WHERE serves.dining_hall_name=%s AND serves.date_of=%s GROUP BY serves.id ORDER BY menu_item.name ASC", (dining_hall.name, date), ("serves.id", "serves.meal", "menu_item.id", "menu_item.name", "average_rating"), lambda row : objects.MenuItemServed.from_db(row, dining_hall))
 	
 	def all_menu_items(self):
 		return self.__multiple_rows("SELECT menu_item.id,menu_item.name FROM menu_item ORDER BY menu_item.name ASC", (), ("menu_item.id", "menu_item.name"), lambda row : objects.MenuItem.from_db(row))

@@ -52,15 +52,16 @@ class MenuItem:
 		return MenuItem(row["menu_item.id"], row["menu_item.name"])	
 	
 class MenuItemServed:
-	def __init__(self, serve_id : int, menu_item : MenuItem, meal : str, dining_hall : DiningHall):
+	def __init__(self, serve_id : int, menu_item : MenuItem, meal : str, average_rating : float, dining_hall : DiningHall):
 		self.serve_id : int = serve_id
 		self.menu_item : MenuItem = menu_item
 		self.meal : str = meal
 		self.dining_hall : DiningHall = dining_hall
+		self.average_rating = average_rating
 		
 	@staticmethod
 	def from_db(row : dict, dining_hall : DiningHall):
-		return MenuItemServed(row["serves.id"], MenuItem.from_db(row), row["serves.meal"], dining_hall)
+		return MenuItemServed(row["serves.id"], MenuItem.from_db(row), row["serves.meal"], row["average_rating"], dining_hall)
 	
 class User:
 	def __init__(self, user_id : str, name : str):
