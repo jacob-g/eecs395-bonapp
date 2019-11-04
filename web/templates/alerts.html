@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+        <h2 class="content-head is-center"> Alerts </h2>
+
+        <div class="pure-g">
+
+            <div class="l-box-lrg pure-u-1 pure-u-md-2-5">
+            	<h4>My Alerts</h4>
+                {% for alert_subscription in page_data["alert_subscriptions"] %}
+                <p>{{ alert_subscription.menu_item.name }} <a href="/alerts/remove/{{ alert_subscription.alert_id }}">[X]</a></p>
+                {% endfor %}
+            </div>
+
+            <div class="l-box-lrg pure-u-1 pure-u-md-3-5">
+                <h4>New Alert</h4>
+                <p>
+                  Select a menu item and dining hall from the dropdown menus to be alerted by email when that item will appear on the menu.
+                </p>
+                {% for menu_item in page_data["all_menu_items"] %}
+                <p>{{ menu_item.name }} <a href="/alerts/add/{{ menu_item.menu_item_id }}">Add alert</a></p>
+                {% endfor %}
+            </div>
+        </div>
+
+{% endblock %}
