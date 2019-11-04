@@ -23,8 +23,9 @@
           <div class="pure-u-1 pure-u-md-1-3">
             <form class="pure-form" action="/actions/add_status" method="post" enctype="multipart/form-data">
               <fieldset>
-                <input type="hidden" name="amenity_id" value="{{ inventory.item.id }}">
-                <select id="status" placeholder="Status">
+              	<input type="hidden" name="dining_hall_name" value="{{ page_data["dining_hall"].name }}">
+                <input type="hidden" name="amenity_id" value="{{ inventory.item.item_id }}">
+                <select name="status" placeholder="Status">
                   <option value="3">Available</option>
                   <option value="2">Limited</option>
                   <option value="0">Not Available</option>

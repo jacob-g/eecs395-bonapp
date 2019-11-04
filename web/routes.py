@@ -20,7 +20,7 @@ routes = {
 	"/contact": {"template": "contact.html", "behavior": static_page, "methods": ["GET"]},
 	"/logout": {"template": "empty.html", "behavior": logout, "methods": ["GET"]},
 	"/actions/leave_review": {"template": "empty.html", "behavior": add_review, "methods": ["POST"]},
-	"/actions/status/add/<dining_hall_name>/<item_id>/<status>": {"template": "empty.html", "behavior": add_status, "methods": ["GET"]},
+	"/actions/add_status": {"template": "empty.html", "behavior": add_status, "methods": ["POST"]},
 	"/dining_hall/<dining_hall_name>": {"template": "hall.html", "behavior": dining_hall_page, "methods": ["GET"]},
 	"/reviews/specific/<serves_id>": {"template": "review.html", "behavior": view_reviews, "methods": ["GET"]},
 	"/alerts": {"template": "alerts.html", "behavior": alerts_page, "methods": ["GET"]},
