@@ -39,9 +39,7 @@ create table statuses (
 
 create table menu_item (
   id int not null auto_increment primary key,
-  name varchar(225) not null,
-  dining_hall varchar(225) not null,
-  meal varchar(225) not null
+  name varchar(225) not null
 );
 
 create table dining_hall (
@@ -58,7 +56,6 @@ create table inventory_item (
 );
 
 -- represent relations
-
 create table inventories (
   user_id varchar(225) not null references user (id),
   status_id int not null references status (id),
@@ -75,8 +72,14 @@ create table serves (
   id int not null auto_increment primary key,
   menu_item_id int not null references menu_item (id),
   dining_hall_name varchar(225) not null references dining_hall (name),
-  meal varchar(225) not null references menu_item (meal),
+  meal varchar(225) not null,
   date_of date not null
+);
+
+create table alert (
+  id int not null auto_increment primary key,
+  user varchar(225) not null references user (id),
+  menu_item_id int not null references menu_item (id)
 );
 
 -- restrict ratings to (0,5)
@@ -85,12 +88,10 @@ create table allowed_scores (
 );
 
 insert into allowed_scores (score) values (1), (2), (3), (4), (5);
-
 alter table review add foreign key (rating) references allowed_scores (score);
 
 -- add foreign key constraints
 alter table review add foreign key (user) references user (id);
 alter table review add foreign key (item) references serves (id);
 alter table statuses add foreign key (item_id) references menu_item (id);
-alter table menu_item add foreign key (dining_hall) references dining_hall (name);
 alter table statuses add foreign key (item_id) references inventory_item (id);

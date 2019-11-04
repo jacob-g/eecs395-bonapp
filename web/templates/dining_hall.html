@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+<<<<<<< HEAD
 <div class="splash-container">
     <div class="splash">
         <h1 class="splash-head">{{ page_data["dining_hall"].name }} Menu</h1>
@@ -38,3 +39,18 @@
       {% endfor %}
 </div>
 {% endblock %}
+=======
+<h2>Information for {{ page_data["dining_hall"].name }}</h2>
+<h3>Today's Menu</h3>
+{% for served_item in page_data["menu"] %}
+{{served_item.menu_item.name}} (<a href="/reviews/specific/{{ served_item.serve_id }}">Reviews</a>)<br />
+{% endfor %}
+<h3>Recent Statuses</h3>
+{% for status in page_data["inventory"] %}
+{{status.item.name}} {{status.status}}
+{% for status_option in range(1, 4) %}
+<a href="/actions/status/add/{{page_data["dining_hall"].name}}/{{status.item.item_id}}/{{status_option}}">{{status_option}}</a>
+{% endfor %}<br />
+{% endfor %}
+{% endblock %}
+>>>>>>> f91bd79bd863b47bb6f0e3b5a7ce382418b2e92f

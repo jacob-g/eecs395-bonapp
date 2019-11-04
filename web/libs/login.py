@@ -1,11 +1,12 @@
 import cas
 from libs import objects
 from flask import session, request
+from libs.db import DBConnector
 
 USER_SESSION_KEY = "user"
 
 class LoginState:
-	def __init__(self, db, ticket=None):
+	def __init__(self, db : DBConnector, ticket : str =None):
 		self.client = cas.CASClientV3(
                         renew=False,
                         extra_login_params=False,
@@ -28,7 +29,7 @@ class LoginState:
 		else:
 			self.user = None
 			
-	def __login_from_cas_ticket(self, db, ticket):
+	def __login_from_cas_ticket(self, db : DBConnector, ticket : str):
 		verState = self.client.verify_ticket(ticket)
 		
 		#if the login is valid, then use what CAS gave us to determine the current user and store it
