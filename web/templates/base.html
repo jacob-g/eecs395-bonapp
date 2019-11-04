@@ -24,6 +24,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0a304e">
       {% if metadata.login_state.user %}
       <span class="navbar-brand">Welcome, {{ metadata.login_state.user.name }}. <a href="{{ metadata.login_state.logout_url }}">Log out</a></span>
+      <a class="nav-link" href="/alerts">Alerts</a>
       {% else %}
       <a class="navbar-brand" style="font-size: 2em" href="{{ metadata.login_state.login_url }}">Login</a>
       {% endif %}
@@ -36,11 +37,6 @@
           <li class="nav-item active">
             <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
           </li>
-          {% for dining_hall in metadata.dining_halls %}
-          <li class="nav-item">
-            <a class="nav-link" href="/dining_hall/{{ dining_hall.name }}">{{ dining_hall.name }}</a>
-          </li>
-          {% endfor %}
         </ul>
       </div>
     </nav>
