@@ -1,7 +1,6 @@
 import mysql.connector
 import datetime
 from libs import objects
-from torch.distributions.constraints import boolean
 from libs.objects import InventoryItem
 
 class DBConnector:
@@ -12,7 +11,7 @@ class DBConnector:
 	def __init__(self):
 		self.link=mysql.connector.connect(host=self.host, user=self.username, password=self.password, database=self.dbname)
 		
-	def __query(self, query : str, args : tuple =(), makes_changes : boolean = False):
+	def __query(self, query : str, args : tuple =(), makes_changes : bool = False):
 		cursor = self.link.cursor()
 		cursor.execute(query, args)
 		
