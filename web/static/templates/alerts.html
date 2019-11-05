@@ -1,25 +1,54 @@
 {% extends 'base.html' %}
 {% block content %}
-        <h2 class="content-head is-center"> Alerts </h2>
-       
-        <div class="pure-g">
-        	
-            <div class="l-box-lrg pure-u-1 pure-u-md-2-5">
-            	<h4>My Alerts</h4>
-                {% for alert_subscription in page_data["alert_subscriptions"] %}
-                <p>{{ alert_subscription.menu_item.name }} <a href="/alerts/remove/{{ alert_subscription.alert_id }}">[X]</a></p>
-                {% endfor %}
-            </div>
 
-            <div class="l-box-lrg pure-u-1 pure-u-md-3-5">
-                <h4>New Alert</h4>
-                <p>
-                  Select a menu item and dining hall from the dropdown menus to be alerted by email when that item will appear on the menu.
-                </p>
-                {% for menu_item in page_data["all_menu_items"] %}
-                <p>{{ menu_item.name }} <a href="/alerts/add/{{ menu_item.menu_item_id }}">Add alert</a></p>
-                {% endfor %}
-            </div>
-        </div>
+<section class="hero has-text-centered is-primary">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        Alerts
+      </h1>
+      <h2 class="subtitle">
+        Create and manage your email alerts for when certain items are going to be served!
+      </h2>
+    </div>
+  </div>
+</section>
+
+<div class="tile is-ancestor">
+  <div class="tile is-vertical is-12">
+    <div class="tile is-link">
+      <div class="tile is-parent is-vertical">
+        <article class="tile is-child notification is-link">
+          <p class="title">My Alerts</p>
+          {% for alert_subscription in page_data["alert_subscriptions"] %}
+            <p>
+              {{ alert_subscription.menu_item.name }}
+              <a class="button is-danger" href="/alerts/remove/{{ alert_subscription.alert_id }}">Remove Alert</a>
+            </p>
+          {% endfor %}
+        </article>
+      </div>
+      <div class="tile is-parent ">
+        <article class="tile is-child notification is-info">
+          <form action="/alerts/add" method="post" enctype="multipart/form-data">
+	          <p class="title">New Alert</p>
+	          <p class="subtitle">Select a menu item and dining hall from the dropdown menus to be alerted by email when that item will appear on the menu.</p>
+	            <div class="select">
+	              <select name="food" placeholder="Food">
+	                {% for menu_item in page_data["all_menu_items"] %}
+	                <option value="{{ menu_item.menu_item_id }}"> {{ menu_item.name }} </option>
+	                {% endfor %}
+	              </select>
+	            </div>
+	          <input type="submit" class="button is-success" value="Add Alert">
+          </form>
+        </article>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
 {% endblock %}
