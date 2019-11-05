@@ -1,10 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="splash-container">
-    <div class="splash">
-      {% for dining_hall in metadata.dining_halls %}
-        <h1 class="splash-head"><a href="/dining_hall/{{ dining_hall.name }}">{{ dining_hall.name }}</a></h1>
-      {% endfor %}
+
+<section class="hero has-text-centered is-link">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        Bon App
+      </h1>
+      <h2 class="subtitle">
+        Explore dining hall menus, review food, and see the status of the dining halls!
+      </h2>
+      <div class="container">
+          {% for dining_hall in metadata.dining_halls %}
+              <a href="/dining_hall/{{ dining_hall.name }}" class="button is-primary is-large">
+                {{ dining_hall.name }}
+              </a>
+          {% endfor %}
+      </div>
     </div>
-</div>
+  </div>
+</section>
 {% endblock %}
