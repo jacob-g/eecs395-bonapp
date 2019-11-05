@@ -30,16 +30,18 @@
       </div>
       <div class="tile is-parent ">
         <article class="tile is-child notification is-info">
-          <p class="title">New Alert</p>
-          <p class="subtitle">Select a menu item and dining hall from the dropdown menus to be alerted by email when that item will appear on the menu.</p>
-            <div class="select">
-              <select name="food" placeholder="Food">
-                {% for menu_item in page_data["all_menu_items"] %}
-                <option> {{ menu_item.name }} </option>
-                {% endfor %}
-              </select>
-            </div>
-          <a class="button is-success"> Submit </a>
+          <form action="/alerts/add" method="post" enctype="multipart/form-data">
+	          <p class="title">New Alert</p>
+	          <p class="subtitle">Select a menu item and dining hall from the dropdown menus to be alerted by email when that item will appear on the menu.</p>
+	            <div class="select">
+	              <select name="food" placeholder="Food">
+	                {% for menu_item in page_data["all_menu_items"] %}
+	                <option value="{{ menu_item.menu_item_id }}"> {{ menu_item.name }} </option>
+	                {% endfor %}
+	              </select>
+	            </div>
+	          <input type="submit" class="button is-success" value="Add Alert">
+          </form>
         </article>
       </div>
     </div>

@@ -7,7 +7,6 @@ status_minutes = 30 #the number of minutes back to look at statuses
 type = "action"
 
 def preempt(db, metadata : dict):
-    #TODO: check if the dining hall exists
     dining_hall_name = request.form["dining_hall_name"]
     item_id = request.form["amenity_id"]
     
