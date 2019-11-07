@@ -4,6 +4,7 @@ import datetime
 class DiningHall:
 	def __init__(self, name : str, hours : dict):
 		self.name : str = name
+		self.hours = hours
 		
 	@staticmethod
 	def __str_range_to_time(time_str):
@@ -36,9 +37,12 @@ class DiningHall:
 	def inventory(self, minutes : int, db):
 		return db.inventory_for(self, minutes)
 	
-	def next_meal(self, time : datetime.time):
-		#TODO: implement
-		return "dinner"
+	def next_meal_after(self, time : datetime.time):
+		later_meals = [meal[0]
+					for meal 
+					in self.hours.items() 
+					if meal[1] is not None and meal[1][1] > time]
+		return later_meals[0] if len(later_meals) > 0 else next(iter(self.hours))
 	
 class InventoryItem:
 	def __init__(self, item_id : int, name : str):

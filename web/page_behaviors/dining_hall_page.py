@@ -13,8 +13,9 @@ def preempt(db : DBConnector, metadata : dict, dining_hall_name : str):
 
 def page_data(db : DBConnector, metadata : dict, dining_hall_name : str):
     dining_hall : objects.DiningHall = objects.DiningHall.from_list(metadata["dining_halls"], dining_hall_name)
-    meal : str = dining_hall.next_meal(datetime.datetime.now())
+    meal : str = dining_hall.next_meal_after(datetime.datetime.now().time())
+    
     return {"dining_hall": dining_hall,
             "meal": meal,
-            "menu": dining_hall.menu(datetime.datetime.now().time(), meal, db), 
+            "menu": dining_hall.menu(datetime.datetime.today().date(), meal, db), 
             "inventory": dining_hall.inventory(status_minutes, db)}
