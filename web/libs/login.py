@@ -34,8 +34,14 @@ class LoginState:
 		
 		#if the login is valid, then use what CAS gave us to determine the current user and store it
 		if verState[0] is not None:
-			self.user = objects.User(verState[1]["user"], verState[1]["displayName"])
-			self.user.add_to_db(db) #since this could be the first time the user logs in, add an entry to them in the database if there isn't already one
+			db_user = db.user_for(verState[1]["user"])
+			if db_user is None:
+				self.user = objects.User(verState[1]["user"], verState[1]["displayName"])
+				self.user.add_to_db(db)
+			else:
+				self.user = db_user
+
+			 #since this could be the first time the user logs in, add an entry to them in the database if there isn't already one
 			session[USER_SESSION_KEY] = self.user.to_dictionary()
 			
 		return

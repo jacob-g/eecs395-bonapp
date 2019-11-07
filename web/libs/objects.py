@@ -54,9 +54,9 @@ class InventoryItem:
 		return InventoryItem(row["inventory_item.id"], row["inventory_item.name"])
 
 class InventoryStatus:
-	def __init__(self, item : InventoryItem, dining_hall : DiningHall, status : int):
+	def __init__(self, item : InventoryItem, dining_hall : DiningHall, status : float):
 		self.item : str = item
-		self.status : int = status
+		self.status : float = status
 		self.dining_hall : DiningHall = dining_hall
 	
 	@staticmethod
@@ -85,19 +85,20 @@ class MenuItemServed:
 		return MenuItemServed(row["serves.id"], MenuItem.from_db(row), row["serves.meal"], row["average_rating"], dining_hall)
 	
 class User:
-	def __init__(self, user_id : str, name : str):
+	def __init__(self, user_id : str, name : str, role : str = "user"):
 		self.user_id : str = user_id
 		self.name : str = name
+		self.role : str = role
 		
 	def to_dictionary(self):
-		return {"id": self.user_id, "name": self.name}
+		return {"id": self.user_id, "name": self.name, "role": self.role}
 	
 	def add_to_db(self, db):
 		return db.add_user_if_not_exists(self)
 	
 	@staticmethod
 	def from_dictionary(in_dict : dict):
-		return User(in_dict["id"], in_dict["name"])
+		return User(in_dict["id"], in_dict["name"], in_dict["role"])
 	
 class Review:
 	def __init__(self, rating : int, comments : str, menu_item : MenuItemServed, reviewer : User):

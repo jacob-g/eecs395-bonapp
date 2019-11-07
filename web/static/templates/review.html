@@ -5,7 +5,7 @@
   <div class="hero-body">
     <div class="container">
       <h1 class="title">
-        Review <strong>{{ page_data["served_item"].menu_item.name }}<strong> at {{ page_data["served_item"].dining_hall.name }}
+        Reviews for <em>{{ page_data["served_item"].menu_item.name }}</em> at {{ page_data["served_item"].dining_hall.name }}
       </h1>
       <h2 class="subtitle">
         <a class="link" href="/contact"> In case of serious concerns, find contact information here.</a>
@@ -14,42 +14,14 @@
   </div>
 </section>
 
-<div class="l-box-lrg pure-u-1 pure-u-md-2-5">
-    <form class="pure-form pure-form-stacked" action="/actions/leave_review" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="serves_id" value="{{ page_data["served_item"].serve_id }}">
-        <fieldset class="is-centered">
-            <div class="field">
-            <label class="label" for="rating">Rating</label>
-            </div>
+<br>
 
-            <div class="field">
-            <div class="select">
-            <select id="rating" name="rating">
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
-            </select>
-            </div>
-            </div>
-
-            <div class="field">
-              <div class="control">
-            <label class="label" for="comment">Comment</label>
-              </div>
-            </div>
-
-            <div class="field">
-              <div class="control">
-            <input class="textarea" id="comment" name="comment" type="text" placeholder="Your Comment">
-              </div>
-            </div>
-
-            <button type="submit" class="button is-success"  value="leave_review">Send Comment</button>
-        </fieldset>
-    </form>
-    <br>
-</div>
+{% for review in page_data["reviews"] %}
+  <div class="columns">
+    <div class="column"> {{ metadata.login_state.user.name }} </div>
+    <div class="column"> Rating: {{ review.rating }} </div>
+    <div class="column"> Comment: {{ review.comments }} </div>
+  </div>
+{% endfor %}
 
 {% endblock %}

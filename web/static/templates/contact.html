@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    <section class="hero has-text-centered is-warning">
+    <section class="hero has-text-centered is-primary">
       <div class="hero-body">
         <div class="container">
           <h1 class="title">
@@ -9,21 +9,25 @@
         </div>
       </div>
     </section>
-
+  <div class="container">
     <div class="tile is-ancestor">
       <div class="tile is-vertical is-12">
         <div class="tile is-link">
           <div class="tile is-parent is-vertical">
-            <article class="tile is-child notification is-info">
+            <article class="tile is-child notification is-link">
               <p class="subtitle">Contact Us</p>
                   <form>
                     <div class="field">
                       <label class="label" for="title">Title</label>
-                      <input class="input" name="title" type="text" placeholder="Comment Title">
+                      <input required class="input" name="title" type="text" placeholder="Comment Title">
                       <label class="label" for="comment">Comment</label>
-                      <input class="input" name="comment" type="comment" placeholder="Your Comment">
+                      <input required class="input" name="comment" type="comment" placeholder="Your Comment">
                     </div>
-                    <button class="button is-submit" type="submit" class="button is-submit">Send Comment</button>
+                    <button class="button is-submit" type="submit" class="button is-success">
+                      <span class="icon">
+                        <i class="fas fa-check"></i>
+                      </span>
+                    </button>
                   </form>
             </article>
           </div>
@@ -38,4 +42,5 @@
           </div>
         </div>
       </div>
+    </div>
 {% endblock %}
