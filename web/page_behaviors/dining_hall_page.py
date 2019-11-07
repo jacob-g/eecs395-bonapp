@@ -1,7 +1,7 @@
-from flask import abort
+from flask import abort, request
 from libs import objects
 from libs.db import DBConnector
-import datetime
+from datetime import datetime
 
 type = "page"
 
@@ -13,9 +13,22 @@ def preempt(db : DBConnector, metadata : dict, dining_hall_name : str):
 
 def page_data(db : DBConnector, metadata : dict, dining_hall_name : str):
     dining_hall : objects.DiningHall = objects.DiningHall.from_list(metadata["dining_halls"], dining_hall_name)
-    meal : str = dining_hall.next_meal_after(datetime.datetime.now().time())
     
+    meal : str = dining_hall.next_meal_after(datetime.now().time()) \
+                    if "meal" not in request.args or request.args["meal"] not in dining_hall.hours \
+                    else request.args["meal"]
+        
+    time = datetime.today()
+    if "date" in request.args:
+        try:
+            time = datetime.strptime(request.args["date"], "%Y-%m-%d")
+        except ValueError:
+            None
+    
+    date = time.date()
+            
     return {"dining_hall": dining_hall,
             "meal": meal,
-            "menu": dining_hall.menu(datetime.datetime.today().date(), meal, db), 
+            "date": date,
+            "menu": dining_hall.menu(date, meal, db), 
             "inventory": dining_hall.inventory(status_minutes, db)}
