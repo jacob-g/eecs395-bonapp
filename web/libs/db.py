@@ -53,7 +53,7 @@ class DBConnector:
 
 	def dining_halls(self):
 		return self.__multiple_rows("SELECT {params} FROM dining_hall ORDER BY name ASC",
-											 {"name": "dining_hall.name"},
+											 {"name": "dining_hall.name", "breakfast": "dining_hall.meal.breakfast", "lunch": "dining_hall.meal.lunch", "dinner": "dining_hall.meal.dinner", "brunch": "dining_hall.meal.brunch"},
 											 (),
 											 lambda row : objects.DiningHall.from_db(row))
 
@@ -68,10 +68,10 @@ class DBConnector:
 			return None
 
 	#TODO: make this take no date by default
-	def menu_for(self, dining_hall : objects.DiningHall, date : datetime.date = datetime.date.today()):
-		return self.__multiple_rows("SELECT {params} FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN review ON review.item=serves.id WHERE serves.dining_hall_name=%s AND serves.date_of=%s GROUP BY serves.id ORDER BY menu_item.name ASC",
+	def menu_for(self, dining_hall : objects.DiningHall, date : datetime.date, meal : str):
+		return self.__multiple_rows("SELECT {params} FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN review ON review.item=serves.id WHERE serves.dining_hall_name=%s AND serves.date_of=%s AND serves.meal=%s GROUP BY serves.id ORDER BY menu_item.name ASC",
 								{"serves.id": "serves.id", "serves.meal": "serves.meal", "menu_item.id": "menu_item.id", "menu_item.name": "menu_item.name", "AVG(review.rating)": "average_rating"},
-								 (dining_hall.name, date),
+								 (dining_hall.name, date, meal),
 								 lambda row : objects.MenuItemServed.from_db(row, dining_hall))
 
 	def all_menu_items(self):
@@ -84,7 +84,7 @@ class DBConnector:
 		return self.__single_row("SELECT menu_item.name FROM menu_item WHERE id=%s", (menu_item_id,), lambda res : objects.MenuItem(id, res[0]))
 
 	def user_for(self, user_id : str):
-		return self.__single_row("SELECT id, name FROM user WHERE id=%s LIMIT 1", (user_id,), lambda res : objects.User(res[0], res[1]))
+		return self.__single_row("SELECT id, name, role FROM user WHERE id=%s LIMIT 1", (user_id,), lambda res : objects.User(res[0], res[1], res[2]))
 
 	def add_user_if_not_exists(self, user : objects.User):
 		self.__query("INSERT INTO `user`(id, name) SELECT %s, %s FROM DUAL WHERE (SELECT COUNT(1) FROM user WHERE id=%s)=0", (user.user_id, user.name, user.user_id), True)

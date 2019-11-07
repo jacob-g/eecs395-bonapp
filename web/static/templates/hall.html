@@ -34,7 +34,7 @@
 
 <section class="section">
     <div class="container">
-      <h1 class="title">Menu</h1>
+      <h1 class="title">Menu for {{ page_data["meal"] }}</h1>
 
       {% for served_item in page_data["menu"] %}
         <div class="columns">
@@ -48,7 +48,7 @@
             <input type="hidden" name="serves_id" value="{{ served_item.serve_id }}">
                 <div class="field has-addons">
                   <div class="select">
-                    <select id="rating" name="rating">
+                    <select id="rating" name="rating" required>
                         <option value="" disabled selected>Rating</option>
                         <option>1</option>
                         <option>2</option>
@@ -85,7 +85,9 @@
             <div class="column">  Status: {{ inventory.status }} </div>
             {% if metadata.login_state.user %}
             <div class="column">
-              <form>
+              <form action="/actions/add_status" method="post" enctype="multipart/form-data">
+              	<input type="hidden" name="dining_hall_name" value="{{ page_data["dining_hall"].name }}">
+              	<input type="hidden" name="amenity_id" value="{{ inventory.item.item_id }}">
                 <div class="field has-addons">
                   <div class="select">
                   <select required name="status" name="status">
