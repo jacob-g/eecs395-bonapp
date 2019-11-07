@@ -2,12 +2,26 @@ from builtins import staticmethod
 import datetime
 
 class DiningHall:
-	def __init__(self, name : str):
+	def __init__(self, name : str, hours : dict):
 		self.name : str = name
+		self.hours = hours
+		
+	@staticmethod
+	def __str_range_to_time(time_str):
+		return tuple([datetime.datetime.strptime(time, "%I:%M%p").time() for time in time_str.split(" to ")])
 		
 	@staticmethod
 	def from_db(row : dict):
-		return DiningHall(format(row["dining_hall.name"]))
+		hours = dict([
+			(
+				meal_info[0].replace("dining_hall.meal.", "", 1),
+				DiningHall.__str_range_to_time(meal_info[1]) if meal_info[1] is not None else None
+		  	)
+			for meal_info in row.items() 
+			if meal_info[0].startswith("dining_hall.meal.")
+		])
+			
+		return DiningHall(row["dining_hall.name"], hours)
 	
 	@staticmethod
 	def from_list(dining_hall_list : list, dining_hall_name : str):
@@ -17,11 +31,18 @@ class DiningHall:
 		else:
 			return dining_hall_candidates[0]
 		
-	def menu(self, date : datetime.date, db):
-		return db.menu_for(self, date)
+	def menu(self, date : datetime.date, meal : str, db):
+		return db.menu_for(self, date, meal)
 		
 	def inventory(self, minutes : int, db):
 		return db.inventory_for(self, minutes)
+	
+	def next_meal_after(self, time : datetime.time):
+		later_meals = [meal[0]
+					for meal 
+					in self.hours.items() 
+					if meal[1] is not None and meal[1][1] > time]
+		return later_meals[0] if len(later_meals) > 0 else next(iter(self.hours))
 	
 class InventoryItem:
 	def __init__(self, item_id : int, name : str):

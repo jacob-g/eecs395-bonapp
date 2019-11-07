@@ -1,6 +1,7 @@
 from flask import abort
 from libs import objects
 from libs.db import DBConnector
+import datetime
 
 type = "page"
 
@@ -11,5 +12,10 @@ def preempt(db : DBConnector, metadata : dict, dining_hall_name : str):
         return abort(404)
 
 def page_data(db : DBConnector, metadata : dict, dining_hall_name : str):
-    dining_hall = objects.DiningHall.from_list(metadata["dining_halls"], dining_hall_name)
-    return {"dining_hall": dining_hall, "menu": db.menu_for(dining_hall), "inventory": dining_hall.inventory(status_minutes, db)}
+    dining_hall : objects.DiningHall = objects.DiningHall.from_list(metadata["dining_halls"], dining_hall_name)
+    meal : str = dining_hall.next_meal_after(datetime.datetime.now().time())
+    
+    return {"dining_hall": dining_hall,
+            "meal": meal,
+            "menu": dining_hall.menu(datetime.datetime.today().date(), meal, db), 
+            "inventory": dining_hall.inventory(status_minutes, db)}
