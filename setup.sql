@@ -17,7 +17,8 @@ create table contacts (
 
 create table user (
   id varchar(225) primary key,
-  name varchar(225) not null
+  name varchar(225) not null,
+  role varchar(225) not null default "user"
 );
 
 create table review (
@@ -25,14 +26,15 @@ create table review (
   user varchar(225) not null,
   rating int not null,
   comments varchar(140) not null,
-  item int not null
+  item int not null,
+  time_stamp timestamp not null default current_timestamp
 );
 
 create table statuses (
   id int not null auto_increment primary key,
   item_id int not null,
   status varchar(225) not null,
-  dining_hall varchar(225) not null,
+  dining_hall varchar(225) not null references dining_hall (name),
   time_stamp timestamp not null default current_timestamp,
   user varchar(225) not null
 );
@@ -89,9 +91,9 @@ create table allowed_scores (
 
 insert into allowed_scores (score) values (1), (2), (3), (4), (5);
 alter table review add foreign key (rating) references allowed_scores (score);
+alter table status add foreign key (status) references allowed_scores (score);
 
 -- add foreign key constraints
 alter table review add foreign key (user) references user (id);
 alter table review add foreign key (item) references serves (id);
-alter table statuses add foreign key (item_id) references menu_item (id);
 alter table statuses add foreign key (item_id) references inventory_item (id);
