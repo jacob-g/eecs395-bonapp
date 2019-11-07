@@ -7,6 +7,27 @@
       <h1 class="title">
         {{ page_data["dining_hall"].name }}
       </h1>
+      <form>
+      <div class="field has-addons">
+        <div class="select">
+          <select name="meal">
+              <option value="" disabled selected> Meal </option>
+              {% for meal in page_data["dining_hall"].hours.keys() %}
+              <option> meal </option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="control is-expanded">
+          <input class="input" name="date" type="date">
+        </div>
+        <button type="submit" class="button is-link"  value="???">
+          <span class="icon">
+            <i class="fas fa-check"></i>
+          </span>
+        </button>
+      </div>
+      </form>
+      <f>
     </div>
   </div>
 </section>
@@ -25,7 +46,6 @@
         <div class="container">
           <form action="/actions/leave_review" method="post" enctype="multipart/form-data">
             <input type="hidden" name="serves_id" value="{{ served_item.serve_id }}">
-              <fieldset>
                 <div class="field has-addons">
                   <div class="select">
                     <select id="rating" name="rating">
