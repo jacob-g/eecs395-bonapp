@@ -19,8 +19,9 @@
         <div class="columns">
           <div class="column"> <strong> {{served_item.menu_item.name}} </strong> </div>
           <div class="column">  Rating: {{served_item.average_rating}} </div>
-          <div class="column"> <a href="/reviews/specific/{{ served_item.serve_id }}" class="button is-success">Read Review</a></div>
+          <div class="column"> <a href="/reviews/specific/{{ served_item.serve_id }}" class="button is-success">Read Reviews</a></div>
         </div>
+        {% if metadata.login_state.user %}
         <div class="container">
           <form action="/actions/leave_review" method="post" enctype="multipart/form-data">
             <input type="hidden" name="serves_id" value="{{ served_item.serve_id }}">
@@ -49,6 +50,7 @@
           <br>
         </div>
       {% endfor %}
+      {% endif %}
     </div>
   </section>
 
@@ -56,11 +58,12 @@
       <div class="container">
         <h1 class="title">Amenities</h1>
 
-        {% for inventory in page_data["inventory"] %}
+      {% for inventory in page_data["inventory"] %}
         <div class="container">
           <div class="columns">
             <div class="column"> <strong>{{ inventory.item.name }}</strong> </div>
             <div class="column">  Status: {{ inventory.status }} </div>
+            {% if metadata.login_state.user %}
             <div class="column">
               <form action="/actions/add_status" method="post" enctype="multipart/form-data">
               	<input type="hidden" name="dining_hall_name" value="{{ page_data["dining_hall"].name }}">
@@ -84,9 +87,10 @@
                 </div>
               </form>
             </div>
+            {% endif %}
           </div>
-        {% endfor %}
-      </div>
+        </div>
+      {% endfor %}
     </section>
 
 {% endblock %}

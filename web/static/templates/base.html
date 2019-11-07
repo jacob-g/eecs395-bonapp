@@ -44,7 +44,9 @@
         <p>
           BonApp was developed by Jacob Goldberg, Divya Manoharan, and Ammar Abidi
         </p>
+        {% if metadata.login_state.user %}
         <a class="button is-dark has-text-grey" href="/contact">Contact Bon Appetit here</a>
+        {% endif %}
       </div>
     </footer>
   </body>

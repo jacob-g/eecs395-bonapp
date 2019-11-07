@@ -5,7 +5,7 @@
   <div class="hero-body">
     <div class="container">
       <h1 class="title">
-        Review <em>{{ page_data["served_item"].menu_item.name }}</em> at {{ page_data["served_item"].dining_hall.name }}
+        Reviews for <em>{{ page_data["served_item"].menu_item.name }}</em> at {{ page_data["served_item"].dining_hall.name }}
       </h1>
       <h2 class="subtitle">
         <a class="link" href="/contact"> In case of serious concerns, find contact information here.</a>
@@ -16,6 +16,12 @@
 
 <br>
 
-
+{% for review in page_data["reviews"] %}
+  <div class="columns">
+    <div class="column"> {{ metadata.login_state.user.name }} </div>
+    <div class="column"> Rating: {{ review.rating }} </div>
+    <div class="column"> Comment: {{ review.comments }} </div>
+  </div>
+{endfor}
 
 {% endblock %}
