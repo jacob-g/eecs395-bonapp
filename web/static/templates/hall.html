@@ -18,8 +18,35 @@
       {% for served_item in page_data["menu"] %}
         <div class="columns">
           <div class="column"> <strong> {{served_item.menu_item.name}} </strong> </div>
-          <div class="column">  Rating: {{ served_item.average_rating }} </div>
-          <div class="column"> <a href="/reviews/specific/{{ served_item.serve_id }}" class="button is-warning">Leave Review</a></div>
+          <div class="column">  Rating: {{served_item.average_rating}} </div>
+          <div class="column"> <a href="/reviews/specific/{{ served_item.serve_id }}" class="button is-success">Read Review</a></div>
+        </div>
+        <div class="container">
+          <form action="/actions/leave_review" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="serves_id" value="{{ served_item.serve_id }}">
+              <fieldset>
+                <div class="field has-addons">
+                  <div class="select">
+                    <select id="rating" name="rating">
+                        <option value="" disabled selected>Rating</option>
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                    </select>
+                  </div>
+                  <div class="control is-expanded">
+                    <input class="input" name="comment" type="text" placeholder="Your Comment">
+                  </div>
+                  <button type="submit" class="button is-success"  value="leave_review">
+                    <span class="icon">
+                      <i class="fas fa-check"></i>
+                    </span>
+                  </button>
+                </div>
+            </form>
+          <br>
         </div>
       {% endfor %}
     </div>
@@ -38,14 +65,19 @@
               <form>
                 <div class="field has-addons">
                   <div class="select">
-                  <select name="status" name="status">
+                  <select required name="status" name="status">
+                      <option value="" disabled selected>Status</option>
                       <option value="3">Available</option>
                       <option value="2">Limited</option>
                       <option value="0">Not Avaiable</option>
                   </select>
                   </div>
                   <div class="control">
-                    <button class="button is-submit" type="submit" class="button is-submit">Submit</button>
+                    <button class="button is-success" type="submit" class="button">
+                      <span class="icon">
+                        <i class="fas fa-check"></i>
+                      </span>
+                    </button>
                   </div>
                 </div>
               </form>
