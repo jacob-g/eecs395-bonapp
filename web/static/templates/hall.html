@@ -19,7 +19,7 @@
         <div class="columns">
           <div class="column"> <strong> {{served_item.menu_item.name}} </strong> </div>
           <div class="column">  Rating: {{served_item.average_rating}} </div>
-          <div class="column"> <a href="/reviews/specific/{{ served_item.serve_id }}" class="button is-success">Read Review</a></div>
+          <div class="column"> <a href="/reviews/specific/{{ served_item.serve_id }}" class="button is-success">Read Reviews</a></div>
         </div>
         <div class="container">
           <form action="/actions/leave_review" method="post" enctype="multipart/form-data">
@@ -56,7 +56,7 @@
       <div class="container">
         <h1 class="title">Amenities</h1>
 
-        {% for inventory in page_data["inventory"] %}
+      {% for inventory in page_data["inventory"] %}
         <div class="container">
           <div class="columns">
             <div class="column"> <strong>{{ inventory.item.name }}</strong> </div>
@@ -81,10 +81,10 @@
                   </div>
                 </div>
               </form>
+            </div>
           </div>
-          </div>
-        {% endfor %}
-      </div>
+        </div>
+      {% endfor %}
     </section>
 
 {% endblock %}
