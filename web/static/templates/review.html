@@ -17,13 +17,11 @@
 <br>
 
 {% for review in page_data["reviews"] %}
-<div class="container">
   <div class="columns">
-    <div class="column"> User: {{ metadata.login_state.user.name }} </div>
+    <div class="column"> {{ metadata.login_state.user.name }} </div>
     <div class="column"> Rating: {{ review.rating }} </div>
-    <div class="column"> Coment: {{ review.comments }} </div>
+    <div class="column"> Comment: {{ review.comments }} </div>
   </div>
-</div>
 {endfor}
 
 {% endblock %}
