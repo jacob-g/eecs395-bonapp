@@ -17,7 +17,8 @@ create table contacts (
 
 create table user (
   id varchar(225) primary key,
-  name varchar(225) not null
+  name varchar(225) not null,
+  role varchar(225) not null
 );
 
 create table review (
