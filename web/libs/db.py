@@ -1,7 +1,6 @@
 import mysql.connector
 import datetime
 from libs import objects
-from libs.objects import InventoryItem
 
 class DBConnector:
 	host="localhost"
@@ -67,7 +66,6 @@ class DBConnector:
 		else:
 			return None
 
-	#TODO: make this take no date by default
 	def menu_for(self, dining_hall : objects.DiningHall, date : datetime.date, meal : str):
 		return self.__multiple_rows("SELECT {params} FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN review ON review.item=serves.id WHERE serves.dining_hall_name=%s AND serves.date_of=%s AND serves.meal=%s GROUP BY serves.id ORDER BY menu_item.name ASC",
 								{"serves.id": "serves.id", "serves.meal": "serves.meal", "menu_item.id": "menu_item.id", "menu_item.name": "menu_item.name", "AVG(review.rating)": "average_rating"},

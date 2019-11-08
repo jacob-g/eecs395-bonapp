@@ -97,6 +97,10 @@ class User:
 		return db.add_user_if_not_exists(self)
 	
 	@staticmethod
+	def from_db(row : dict):
+		return User(row["user.id"], row["user.name"], row["user.role"])
+	
+	@staticmethod
 	def from_dictionary(in_dict : dict):
 		return User(in_dict["id"], in_dict["name"], in_dict["role"])
 	
@@ -109,7 +113,7 @@ class Review:
 	
 	@staticmethod
 	def from_db(row : tuple, menu_item : MenuItemServed):
-		return Review(row["review.rating"], row["review.comments"], menu_item, User(row["user.id"], row["user.name"]))
+		return Review(row["review.rating"], row["review.comments"], menu_item, User.from_db(row))
 	
 	def add_to_db(self, db):
 		return db.add_review(self)

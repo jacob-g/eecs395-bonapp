@@ -16,7 +16,7 @@
 
 {% if "warning" in request.args %}
 {% if request.args["warning"] == "already_reviewed" %}
-<div class="notification is-danger">You already reviewed this you moron.</div>
+<div class="notification is-danger">You have already reviewed this item for this meal.</div>
 {% endif %}
 {% endif %}
 
@@ -24,7 +24,7 @@
 
 {% for review in page_data["reviews"] %}
   <div class="columns">
-    <div class="column"> {{ metadata.login_state.user.name }} </div>
+    <div class="column"> {{ review.reviewer.name }} </div>
     <div class="column"> Rating: {{ review.rating }} </div>
     <div class="column"> Comment: {{ review.comments }} </div>
   </div>
