@@ -8,6 +8,9 @@ def preempt(db : DBConnector, metadata : dict):
     
     if db.served_item(serves_id) is None or metadata["login_state"].user is None:
         return abort(404)
+    
+    if db.exists_review(serves_id, metadata["login_state"].user):
+        return redirect(f"/reviews/specific/{serves_id}?warning=already_reviewed", 301)
 
 def action(db : DBConnector, metadata : dict):
     serves_id = request.form["serves_id"]

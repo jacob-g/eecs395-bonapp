@@ -14,6 +14,12 @@
   </div>
 </section>
 
+{% if "warning" in request.args %}
+{% if request.args["warning"] == "already_reviewed" %}
+<div class="notification is-danger">You already reviewed this you moron.</div>
+{% endif %}
+{% endif %}
+
 <br>
 
 {% for review in page_data["reviews"] %}

@@ -112,10 +112,13 @@ class DBConnector:
 	def add_status(self, dining_hall : objects.DiningHall, inventory_item : objects.InventoryItem, status : int, user : objects.User, minutes : int):
 		self.__query("INSERT INTO statuses(item_id,status,dining_hall,time_stamp,user) SELECT %s, %s, %s, NOW(), %s FROM DUAL WHERE (SELECT COUNT(1) FROM statuses WHERE user=%s AND dining_hall=%s AND item_id=%s AND time_stamp>(NOW() - INTERVAL %s MINUTE))=0", (inventory_item.item_id, status, dining_hall.name, user.user_id, user.user_id, dining_hall.name, inventory_item.item_id, minutes), True)
 		return
+	
+	def exists_review(self, serves_id : int, user : objects.User):
+		return self.__single_row("SELECT COUNT(1) FROM review WHERE item=%s AND user=%s", (serves_id, user.user_id), lambda row : row[0] > 0)
 
 	def reviews_for(self, served_menu_item : objects.MenuItemServed):
 		return self.__multiple_rows("SELECT {params} FROM review LEFT JOIN review_of ON review_of.review_id=review.id LEFT JOIN serves ON serves.id=review.item LEFT JOIN user ON user.id=review.user WHERE serves.menu_item_id=%s",
-								{"review.rating": "review.rating", "review.comments": "review.comments", "user.id": "user.id", "user.name": "user.name"},
+								{"review.rating": "review.rating", "review.comments": "review.comments", "user.id": "user.id", "user.name": "user.name", "user.role": "user.role"},
 								(served_menu_item.menu_item.menu_item_id,),
 								lambda row : objects.Review.from_db(row, served_menu_item))
 
