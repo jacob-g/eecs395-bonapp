@@ -50,11 +50,18 @@ def insert_meal(name, dining_hall, meal):
 
 #insert dining_hall entities
 def insert_hours(name, breakfast, lunch, dinner, brunch):
-    query = "insert into dining_hall (name, breakfast, lunch, dinner, brunch) values (%s,%s,%s,%s,%s)"
-    args = (name, breakfast, lunch, dinner, brunch)
+    query_empty = "insert into dining_hall (name, breakfast, lunch, dinner, brunch) values (%s,%s,%s,%s,%s)"
+    query_full =  "update dining_hall set breakfast=%s,lunch=%s,dinner=%s,brunch=%s where name=%s"
+    query_check = "select count(*) from dining_hall"
+    args_empty = (name, breakfast, lunch, dinner, brunch)
+    args_full = (breakfast, lunch, dinner, brunch, name)
 
     cursor = connection.cursor()
-    cursor.execute(query,args)
+    cursor.execute(query_check)
+    if (cursor.fetchall()[0][0]<2):
+        cursor.execute(query_empty,args_empty)
+    else:
+        cursor.execute(query_full,args_full)
 
     connection.commit()
     cursor.close()
