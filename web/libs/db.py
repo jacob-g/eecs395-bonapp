@@ -46,6 +46,10 @@ class DBConnector:
 			output.append(constructor(row))
 
 		return output
+	
+	def close(self):
+		self.link.close()
+		return
 
 #	def __multiple_rows_provisional(self, query : str, params : dict, args, constructor):
 #		return self.__multiple_rows(query % ",".join(params.keys()), args, tuple(params.values()), constructor)

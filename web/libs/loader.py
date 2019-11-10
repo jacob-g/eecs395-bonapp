@@ -10,15 +10,21 @@ def get_metadata(db : DBConnector):
     }
     
     
-def load_page(template : str, page_data_module, db : DBConnector, *args, **kwargs):
+def load_page(template : str, page_data_module, *args, **kwargs):
+    db = DBConnector()
+    
     metadata = get_metadata(db)
     
     preempt = page_data_module.preempt(db, metadata, *args, **kwargs)
     if preempt is not None:
-        return preempt
+        page = preempt
     
     elif page_data_module.type == "page":
-        return render_template(template, metadata=metadata, page_data=page_data_module.page_data(db, metadata, *args, **kwargs))
+        page = render_template(template, metadata=metadata, page_data=page_data_module.page_data(db, metadata, *args, **kwargs))
     
     elif page_data_module.type == "action":
-        return page_data_module.action(db, metadata=metadata, *args, **kwargs)
+        page = page_data_module.action(db, metadata=metadata, *args, **kwargs)
+        
+    db.close()
+        
+    return page
