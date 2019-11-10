@@ -102,7 +102,7 @@ def send_email(user_email, item_name):
 def alert():
     #retrieve all users and items for which they have alerts
     query_retrieve = "select user, menu_item.name from alert, menu_item where alert.menu_item_id=menu_item.id"
-    query_check = "select count(id) from menu_item where name=%s"
+    query_check = "select count(menu_item.id) from menu_item, serves where menu_item.name=%s and menu_item.id=serves.menu_item_id and date(serves.date_of)=date(now())"
 
     cursor = connection.cursor()
     cursor.execute(query_retrieve) #get all alert data
