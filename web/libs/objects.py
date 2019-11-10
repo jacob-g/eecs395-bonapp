@@ -8,7 +8,7 @@ class DiningHall:
 		
 	@staticmethod
 	def __str_range_to_time(time_str):
-		return tuple([datetime.datetime.strptime(time, "%I:%M%p").time() for time in time_str.split(" to ")])
+		return tuple([datetime.datetime.strptime(time, "%I:%M %p").time() for time in time_str.split(" - ")])
 		
 	@staticmethod
 	def from_db(row : dict):
@@ -57,7 +57,19 @@ class InventoryStatus:
 	def __init__(self, item : InventoryItem, dining_hall : DiningHall, status : float):
 		self.item : str = item
 		self.status : float = status
+		self.status_str = InventoryStatus.status_str_of(self.status)
 		self.dining_hall : DiningHall = dining_hall
+		
+	@staticmethod
+	def status_str_of(status : float):
+		if status is None:
+			return "Unknown"
+		elif status < 1:
+			return "None"
+		elif status < 2:
+			return "Limited"
+		else:
+			return "Available"
 	
 	@staticmethod
 	def from_db(row : tuple, dining_hall : DiningHall):

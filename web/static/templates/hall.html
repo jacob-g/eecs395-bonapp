@@ -81,7 +81,7 @@
         <div class="container">
           <div class="columns">
             <div class="column"> <strong>{{ inventory.item.name }}</strong> </div>
-            <div class="column">  Status: {{ inventory.status }} </div>
+            <div class="column">  Status: {{ inventory.status_str }} </div>
             {% if metadata.login_state.user %}
             <div class="column">
               <form action="/actions/add_status" method="post" enctype="multipart/form-data">
