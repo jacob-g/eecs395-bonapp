@@ -11,8 +11,6 @@ app.template_folder = "static/templates"
 app.static_folder = "static"
 app.static_url_path = ""
 
-dbLink = DBConnector()
-
 page_metadata = []
 
 routes = {
@@ -31,7 +29,7 @@ routes = {
 loader_funcs = []
 
 for url, page_spec in routes.items():
-	loader_func = lambda page_spec=page_spec, *args, **kwargs: loader.load_page(page_spec["template"], page_spec["behavior"], dbLink, *args, **kwargs)
+	loader_func = lambda page_spec=page_spec, *args, **kwargs: loader.load_page(page_spec["template"], page_spec["behavior"], DBConnector(), *args, **kwargs)
 	loader_func.__name__ = f"load:{url}"
 		
 	app.route(url, methods=page_spec["methods"])(loader_func)
