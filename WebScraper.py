@@ -32,7 +32,7 @@ def serves_table(id, name, meal, date):
 
 #insert menu_item entities
 def insert_meal(name, dining_hall, meal):
-    query = "insert into menu_item (name) values (%s)"
+    query = "insert ignore into menu_item (name) values (%s)"
     args = (name,)
 
     #retrieve menu_item_ids

@@ -41,7 +41,7 @@ create table statuses (
 
 create table menu_item (
   id int not null auto_increment primary key,
-  name varchar(225) not null
+  name varchar(225) not null unique
 );
 
 create table dining_hall (
