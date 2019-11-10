@@ -32,7 +32,7 @@ create table review (
 
 create table statuses (
   id int not null auto_increment primary key,
-  item_id int not null,
+  item_id int not null references inventory_item (id),
   status varchar(225) not null,
   dining_hall varchar(225) not null references dining_hall (name),
   time_stamp timestamp not null default current_timestamp,
@@ -60,7 +60,7 @@ create table inventory_item (
 -- represent relations
 create table inventories (
   user_id varchar(225) not null references user (id),
-  status_id int not null references status (id),
+  status_id int not null references statuses (id),
   primary key (user_id, status_id)
 );
 
@@ -90,10 +90,9 @@ create table allowed_scores (
 );
 
 insert into allowed_scores (score) values (1), (2), (3), (4), (5);
+
 alter table review add foreign key (rating) references allowed_scores (score);
-alter table status add foreign key (status) references allowed_scores (score);
 
 -- add foreign key constraints
 alter table review add foreign key (user) references user (id);
 alter table review add foreign key (item) references serves (id);
-alter table statuses add foreign key (item_id) references inventory_item (id);

@@ -3,6 +3,10 @@ import lxml.etree
 import requests
 import mysql.connector
 from datetime import datetime
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
 
 #retrieve web page data
 leutPage = requests.get("https://case.cafebonappetit.com/cafe/leutner-cafe/")
@@ -50,11 +54,18 @@ def insert_meal(name, dining_hall, meal):
 
 #insert dining_hall entities
 def insert_hours(name, breakfast, lunch, dinner, brunch):
-    query = "insert into dining_hall (name, breakfast, lunch, dinner, brunch) values (%s,%s,%s,%s,%s)"
-    args = (name, breakfast, lunch, dinner, brunch)
+    query_empty = "insert into dining_hall (name, breakfast, lunch, dinner, brunch) values (%s,%s,%s,%s,%s)"
+    query_full =  "update dining_hall set breakfast=%s,lunch=%s,dinner=%s,brunch=%s where name=%s"
+    query_check = "select count(*) from dining_hall"
+    args_empty = (name, breakfast, lunch, dinner, brunch)
+    args_full = (breakfast, lunch, dinner, brunch, name)
 
     cursor = connection.cursor()
-    cursor.execute(query,args)
+    cursor.execute(query_check)
+    if (cursor.fetchall()[0][0]<2):
+        cursor.execute(query_empty,args_empty)
+    else:
+        cursor.execute(query_full,args_full)
 
     connection.commit()
     cursor.close()
@@ -65,6 +76,46 @@ def write_to_db(item_list, dining_hall, meal):
         item = x.strip() #removes tabs and newlines
         if (item != ''): #checks for empty inventories
             insert_meal(item, dining_hall, meal)
+
+#send email alerts if item is available
+def send_email(user_email, item_name):
+
+    user = "bonappalerts@gmail.com"
+    pwd = "BonAppAlerts1"
+
+    msg = MIMEMultipart()
+    msg['From'] = user
+    msg['To'] = user_email + "@case.edu"
+    msg['Subject'] = item_name + " is Available Today!"
+
+    body = "You have signed up to receive an email alert when " + item_name + " is available in the dining halls. Enjoy your meal today!"
+    msg.attach(MIMEText(body, 'plain'))
+
+    server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+    server.ehlo()
+    server.login(user, pwd)
+    text = msg.as_string()
+    server.sendmail(user, user_email + "@case.edu", text)
+    server.close()
+
+#check for users with active alerts
+def alert():
+    #retrieve all users and items for which they have alerts
+    query_retrieve = "select user, menu_item.name from alert, menu_item where alert.menu_item_id=menu_item.id"
+    query_check = "select count(id) from menu_item where name=%s"
+
+    cursor = connection.cursor()
+    cursor.execute(query_retrieve) #get all alert data
+    alert_data = cursor.fetchall()
+
+    for x in range(len(alert_data)):
+        args = (alert_data[x][1],)
+        cursor.execute(query_check,args)
+        if (cursor.fetchall()[0][0]>0):
+            send_email(alert_data[x][0],alert_data[x][1])
+
+    connection.commit()
+    cursor.close()
 
 #get hours
 leutBreakfastHours = leutTree.xpath('//section[@data-jump-nav-title="Breakfast"]//div[@class="site-panel__daypart-time"]/text()')
@@ -106,3 +157,6 @@ write_to_db(fribBreakfastItems, "Fribley", "Breakfast")
 write_to_db(fribBrunchItems, "Fribley", "Lunch")
 write_to_db(fribLunchItems, "Fribley", "Lunch")
 write_to_db(fribDinnerItems, "Fribley", "Dinner")
+
+#check for alerts
+alert()
