@@ -51,9 +51,6 @@ class DBConnector:
 		self.link.close()
 		return
 
-#	def __multiple_rows_provisional(self, query : str, params : dict, args, constructor):
-#		return self.__multiple_rows(query % ",".join(params.keys()), args, tuple(params.values()), constructor)
-
 	def dining_halls(self):
 		return self.__multiple_rows("SELECT {params} FROM dining_hall ORDER BY name ASC",
 											 {"name": "dining_hall.name", "breakfast": "dining_hall.meal.breakfast", "lunch": "dining_hall.meal.lunch", "dinner": "dining_hall.meal.dinner", "brunch": "dining_hall.meal.brunch"},
@@ -94,6 +91,10 @@ class DBConnector:
 
 	def add_review(self, user : objects.User, rating : int, comments : str, serves_id : int):
 		self.__query("INSERT INTO review(user, rating, comments, item) VALUES(%s, %s, %s, %s)", (user.user_id, rating, comments, serves_id), True)
+		return
+	
+	def delete_review(self, review_id: int):
+		self.__query("DELETE FROM review WHERE id=%s", (review_id, ), True)
 		return
 
 	def allowed_scores(self):
