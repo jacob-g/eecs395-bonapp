@@ -58,10 +58,10 @@ class DBConnector:
 											 lambda row : objects.DiningHall.from_db(row))
 
 	def served_item(self, serves_id : int):
-		result = self._query("SELECT serves.id,serves.meal,menu_item.id,menu_item.name,dining_hall.name,AVG(review.rating) FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN review ON review.item=serves.id LEFT JOIN dining_hall ON dining_hall.name=serves.dining_hall_name WHERE serves.id=%s ORDER BY menu_item.name ASC", (serves_id,))
+		result = self._query("SELECT serves.id,serves.meal,menu_item.id,menu_item.name,dining_hall.name,AVG(review.rating) FROM serves INNER JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN review ON review.item=serves.id LEFT JOIN dining_hall ON dining_hall.name=serves.dining_hall_name WHERE serves.id=%s ORDER BY menu_item.name ASC", (serves_id,))
 
-		row = {}
-		if len(result) == 1:
+		if len(result) == 1 and result[0][0] is not None:
+			row = {}
 			(row["serves.id"], row["serves.meal"], row["menu_item.id"], row["menu_item.name"], row["dining_hall.name"], row["average_rating"]) = result[0]
 			return objects.MenuItemServed.from_db(row, objects.DiningHall.from_db(row))
 		else:

@@ -9,12 +9,11 @@ import random
 from libs import db
 from libs import objects
 from datetime import datetime
+from page_behaviors import dining_hall_page, add_alert
+from flask import abort, request
+import werkzeug
 
 db_connection = db.DBConnector();
-
-class UserTest(unittest.TestCase):
-    def test_add_user(self):
-       return
         
 class MenuItemTest(unittest.TestCase):
     def test_add_menu_item(self):
@@ -34,7 +33,7 @@ class MenuItemTest(unittest.TestCase):
         
         self.assertEqual(len(served_items), 1, "menu item not added and marked as served properly")
         
-        served_item = db_connection.served_item(menu_item_id)
+        served_item = db_connection.served_item(served_items[0].serve_id)
         self.assertNotEqual(served_item, None, "could not get served item on its own")
         
         #create a user
@@ -78,3 +77,17 @@ class MenuItemTest(unittest.TestCase):
         db_connection.add_status(leutner, inventory[0].item, 0, test_user, 15)
         inventory = get_inventory()
         self.assertEqual(inventory[0].status_str, "Available", "status should be updated twice")
+        
+class FakeRequest:
+    def __init__(self, form):
+        self.request = form
+        
+        
+class PreemptTests(unittest.TestCase):
+    def test_dining_hall(self):
+        with self.assertRaises(werkzeug.exceptions.NotFound):
+            self.assertEqual(dining_hall_page.preempt(db_connection, {"dining_halls": db_connection.dining_halls()}, "NONEXISTENTDININGHALL"), abort(404))
+        self.assertEqual(dining_hall_page.preempt(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner"), None)
+        
+    def test_add_alert(self):
+        #TODO: mock a Flask request
