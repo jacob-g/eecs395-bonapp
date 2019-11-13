@@ -18,6 +18,9 @@ class UserTest(unittest.TestCase):
         
 class MenuItemTest(unittest.TestCase):
     def test_add_menu_item(self):
+        #get Leutner
+        leutner = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner")
+        
         #create a menu item
         menu_item_id = random.randint(1, 100000)
         menu_item_name = f"MenuItem{menu_item_id}"
@@ -26,11 +29,13 @@ class MenuItemTest(unittest.TestCase):
         db_connection._query("INSERT INTO serves(date_of, menu_item_id, meal, dining_hall_name) VALUES(%s, %s, %s, %s)", (datetime.today().date(), menu_item_id, "dinner", "Leutner"), True)
         
         #make sure it can be retrieved
-        menu = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner").menu(datetime.today().date(), "dinner", db_connection)
+        menu = leutner.menu(datetime.today().date(), "dinner", db_connection)
         served_items = [served_item for served_item in menu if served_item.menu_item.menu_item_id == menu_item_id]
         
         self.assertEqual(len(served_items), 1, "menu item not added and marked as served properly")
-        served_item = served_items[0]
+        
+        served_item = db_connection.served_item(menu_item_id)
+        self.assertNotEqual(served_item, None, "could not get served item on its own")
         
         #create a user
         user_id = "user%d".format(random.randint(1, 100000))
@@ -53,3 +58,23 @@ class MenuItemTest(unittest.TestCase):
         #delete the review
         db_connection.delete_review(review.review_id)
         self.assertEqual(len(db_connection.reviews_for(served_item)), 0, "review not properly deleted")
+        
+        #create some random inventory item
+        inventory_item_id = random.randint(1, 100000)
+        inventory_item_name = "Inventory Item %i".format(random.randint(1, 100000))
+        db_connection._query("INSERT INTO inventory_item(id, name) VALUES(%s, %s)", (inventory_item_id, inventory_item_name, ), True)
+        
+        def get_inventory():
+            return [inventory_item_status for inventory_item_status in leutner.inventory(1, db_connection) if inventory_item_status.item.item_id == inventory_item_id]
+        
+        inventory = get_inventory()
+        self.assertEqual(len(inventory), 1, "inventory status not listed")
+        self.assertEqual(inventory[0].status_str, "Unknown", "status should not be set")
+        
+        db_connection.add_status(leutner, inventory[0].item, 3, test_user, 15)
+        inventory = get_inventory()
+        self.assertEqual(inventory[0].status_str, "Available", "status should be available")
+        
+        db_connection.add_status(leutner, inventory[0].item, 0, test_user, 15)
+        inventory = get_inventory()
+        self.assertEqual(inventory[0].status_str, "Available", "status should be updated twice")
