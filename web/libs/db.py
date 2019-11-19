@@ -116,6 +116,9 @@ class DBConnector:
 		self._query("INSERT INTO statuses(item_id,status,dining_hall,time_stamp,user) SELECT %s, %s, %s, NOW(), %s FROM DUAL WHERE (SELECT COUNT(1) FROM statuses WHERE user=%s AND dining_hall=%s AND item_id=%s AND time_stamp>(NOW() - INTERVAL %s MINUTE))=0", (inventory_item.item_id, status, dining_hall.name, user.user_id, user.user_id, dining_hall.name, inventory_item.item_id, minutes), True)
 		return
 	
+	def exists_review_with_id(self, review_id : int):
+		return self.__single_row("SELECT COUNT(1) FROM review WHERE id=%s", (review_id,), lambda row : row[0] > 0)
+	
 	def exists_review(self, serves_id : int, user : objects.User):
 		return self.__single_row("SELECT COUNT(1) FROM review WHERE item=%s AND user=%s", (serves_id, user.user_id), lambda row : row[0] > 0)
 

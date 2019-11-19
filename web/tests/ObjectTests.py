@@ -11,7 +11,7 @@ from pytest_mock import mocker
 from libs import db
 from libs import objects
 from datetime import datetime
-from page_behaviors import dining_hall_page, add_alert, add_review, add_status, alerts_page
+from page_behaviors import dining_hall_page, add_alert, add_review, add_status, alerts_page, delete_review
 import flask
 import werkzeug
 
@@ -165,3 +165,29 @@ class PreemptTests(unittest.TestCase):
             alerts_page.preempt(db_connection, {"login_state": FakeNotLoggedInState()})
             
         self.assertEqual(alerts_page.preempt(db_connection, {"login_state": FakeLoggedInState()}), None, "alerts page failed to allow logged in users")
+        
+    def test_delete_review_page(self):
+        m = mock.MagicMock()
+        
+        m.form = {"review_id": -1}
+        
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="delete review page failed to reject not logged in users"):
+            with mock.patch("page_behaviors.delete_review.request", m):
+                delete_review.preempt(db_connection, {"login_state": FakeNotLoggedInState()})
+                
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="delete review page failed to reject non-admin users"):
+            with mock.patch("page_behaviors.delete_review.request", m):
+                delete_review.preempt(db_connection, {"login_state": FakeLoggedInState()})
+                
+        admin = FakeLoggedInState();
+        admin.user.role = "admin"
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="delete review page failed to reject non-existent reviews"):
+            with mock.patch("page_behaviors.delete_review.request", m):
+                delete_review.preempt(db_connection, {"login_state": admin})
+        
+        result = db_connection._query("SELECT id FROM review", ())
+        
+        m.form["review_id"] = result[0][0]
+                
+        with mock.patch("page_behaviors.delete_review.request", m):
+            self.assertEqual(delete_review.preempt(db_connection, {"login_state": admin}), None, "delete review rejects valid request")
