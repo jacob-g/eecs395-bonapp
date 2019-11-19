@@ -129,15 +129,15 @@ fribLunchHours = fribTree.xpath('//section[@data-jump-nav-title="Lunch"]//div[@c
 fribDinnerHours = fribTree.xpath('//section[@data-jump-nav-title="Dinner"]//div[@class="site-panel__daypart-time"]/text()')
 
 #get menu items
-leutBreakfastItems = leutTree.xpath('//section[@data-jump-nav-title="Breakfast"]//button[@data-js="site-panel__daypart-item-title"]/text()')
-leutBrunchItems = leutTree.xpath('//section[@data-jump-nav-title="Brunch"]//button[@data-js="site-panel__daypart-item-title"]/text()')
-leutLunchItems = leutTree.xpath('//section[@data-jump-nav-title="Lunch"]//button[@data-js="site-panel__daypart-item-title"]/text()')
-leutDinnerItems = leutTree.xpath('//section[@data-jump-nav-title="Dinner"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+leutBreakfastItems = leutTree.xpath('//section[@data-jump-nav-title="Breakfast"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+leutBrunchItems = leutTree.xpath('//section[@data-jump-nav-title="Brunch"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+leutLunchItems = leutTree.xpath('//section[@data-jump-nav-title="Lunch"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+leutDinnerItems = leutTree.xpath('//section[@data-jump-nav-title="Dinner"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
 
-fribBreakfastItems = fribTree.xpath('//section[@data-jump-nav-title="Breakfast"]//button[@data-js="site-panel__daypart-item-title"]/text()')
-fribBrunchItems = fribTree.xpath('//section[@data-jump-nav-title="Brunch"]//button[@data-js="site-panel__daypart-item-title"]/text()')
-fribLunchItems = fribTree.xpath('//section[@data-jump-nav-title="Lunch"]//button[@data-js="site-panel__daypart-item-title"]/text()')
-fribDinnerItems = fribTree.xpath('//section[@data-jump-nav-title="Dinner"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+fribBreakfastItems = fribTree.xpath('//section[@data-jump-nav-title="Breakfast"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+fribBrunchItems = fribTree.xpath('//section[@data-jump-nav-title="Brunch"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+fribLunchItems = fribTree.xpath('//section[@data-jump-nav-title="Lunch"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+fribDinnerItems = fribTree.xpath('//section[@data-jump-nav-title="Dinner"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
 
 #write hours to database
 if (len(leutBrunchHours) == 0):
