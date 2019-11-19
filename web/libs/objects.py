@@ -55,7 +55,7 @@ class InventoryItem:
 
 class InventoryStatus:
 	def __init__(self, item : InventoryItem, dining_hall : DiningHall, status : float):
-		self.item : str = item
+		self.item : InventoryItem = item
 		self.status : float = status
 		self.status_str = InventoryStatus.status_str_of(self.status)
 		self.dining_hall : DiningHall = dining_hall

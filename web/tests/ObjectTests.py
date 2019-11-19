@@ -6,13 +6,12 @@ Created on Oct 24, 2019
 
 import unittest
 import random
-import pytest
 import mock
 from pytest_mock import mocker
 from libs import db
 from libs import objects
 from datetime import datetime
-from page_behaviors import dining_hall_page, add_alert, add_review
+from page_behaviors import dining_hall_page, add_alert, add_review, add_status
 import flask
 import werkzeug
 
@@ -136,3 +135,28 @@ class PreemptTests(unittest.TestCase):
         
         with mock.patch("page_behaviors.add_review.request", m):
             self.assertEqual(add_review.preempt(db_connection, {"login_state": FakeLoggedInState()}), None)
+            
+    def test_add_status(self):
+        m = mock.MagicMock()
+        
+        m.form = {"dining_hall_name": "dining hall that does not exisdt", "amenity_id": -1}
+        
+        dining_halls = db_connection.dining_halls()
+        
+        with self.assertRaises(werkzeug.exceptions.NotFound):
+            with mock.patch("page_behaviors.add_status.request", m):
+                add_status.preempt(db_connection, {"login_state": FakeNotLoggedInState(), "dining_halls": dining_halls})
+                
+        with self.assertRaises(werkzeug.exceptions.NotFound):
+            with mock.patch("page_behaviors.add_status.request", m):
+                add_status.preempt(db_connection, {"login_state": FakeLoggedInState(), "dining_halls": dining_halls})
+                
+        m.form["dining_hall_name"] = "Leutner"
+        with self.assertRaises(werkzeug.exceptions.NotFound):
+            with mock.patch("page_behaviors.add_status.request", m):
+                add_status.preempt(db_connection, {"login_state": FakeLoggedInState(), "dining_halls": dining_halls})
+                
+        real_item = db_connection.inventory_for(self.leutner, 30)[0].item
+        m.form["amenity_id"] = real_item.item_id
+        with mock.patch("page_behaviors.add_status.request", m):
+            self.assertEqual(add_status.preempt(db_connection, {"login_state": FakeLoggedInState(), "dining_halls": dining_halls}), None)
