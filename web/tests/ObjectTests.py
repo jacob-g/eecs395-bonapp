@@ -11,7 +11,7 @@ from pytest_mock import mocker
 from libs import db
 from libs import objects
 from datetime import datetime
-from page_behaviors import dining_hall_page, add_alert, add_review, add_status
+from page_behaviors import dining_hall_page, add_alert, add_review, add_status, alerts_page
 import flask
 import werkzeug
 
@@ -92,26 +92,25 @@ class PreemptTests(unittest.TestCase):
     menu_item_id = menu[0].menu_item.menu_item_id
     
     def test_dining_hall(self):
-        with self.assertRaises(werkzeug.exceptions.NotFound):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="dining hall page failed to reject non-existent dining hall"):
             dining_hall_page.preempt(db_connection, {"dining_halls": db_connection.dining_halls()}, "NONEXISTENTDININGHALL")
-        self.assertEqual(dining_hall_page.preempt(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner"), None)
+        self.assertEqual(dining_hall_page.preempt(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner"), None, "dining hall page failed to allow valid dining hall")
         
     def test_add_alert(self):
         m = mock.MagicMock()
         
         m.form = {"food": None}
-        with self.assertRaises(werkzeug.exceptions.NotFound):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="add alert failed to gracefully reject non-existent food item"):
             with mock.patch("page_behaviors.add_alert.request", m):
                 add_alert.preempt(db_connection, {})
         
         m.form = {"food": -1}
-        with self.assertRaises(werkzeug.exceptions.NotFound):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="add alert failed to reject invalid food item"):
             with mock.patch("page_behaviors.add_alert.request", m):
                 add_alert.preempt(db_connection, {})
         
-        
         m.form = {"food": self.menu_item_id}
-        with self.assertRaises(werkzeug.exceptions.NotFound):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="add alert failed to reject not logged in user"):
             with mock.patch("page_behaviors.add_alert.request", m):
                 add_alert.preempt(db_connection, {"login_state": FakeNotLoggedInState()})
                 
@@ -122,41 +121,47 @@ class PreemptTests(unittest.TestCase):
         m = mock.MagicMock()
         
         m.form = {"serves_id": -1}
-        with self.assertRaises(werkzeug.exceptions.NotFound):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="add review failed to reject non-existent menu item"):
             with mock.patch("page_behaviors.add_review.request", m):
                 add_review.preempt(db_connection, {})
                 
         m.form = {"serves_id": self.menu[0].serve_id}
-        with self.assertRaises(werkzeug.exceptions.NotFound):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="add review failed to reject not logged in user"):
             with mock.patch("page_behaviors.add_review.request", m):
                 add_review.preempt(db_connection, {"login_state": FakeNotLoggedInState()})
         
         #TODO: add a test for an already existing review
         
         with mock.patch("page_behaviors.add_review.request", m):
-            self.assertEqual(add_review.preempt(db_connection, {"login_state": FakeLoggedInState()}), None)
+            self.assertEqual(add_review.preempt(db_connection, {"login_state": FakeLoggedInState()}), None, "add review rejected valid request")
             
     def test_add_status(self):
         m = mock.MagicMock()
         
-        m.form = {"dining_hall_name": "dining hall that does not exisdt", "amenity_id": -1}
+        m.form = {"dining_hall_name": "dining hall that does not exist", "amenity_id": -1}
         
         dining_halls = db_connection.dining_halls()
         
-        with self.assertRaises(werkzeug.exceptions.NotFound):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="add status page failed to reject not logged in user"):
             with mock.patch("page_behaviors.add_status.request", m):
                 add_status.preempt(db_connection, {"login_state": FakeNotLoggedInState(), "dining_halls": dining_halls})
                 
-        with self.assertRaises(werkzeug.exceptions.NotFound):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="add status page failed to reject non-existent dining hall"):
             with mock.patch("page_behaviors.add_status.request", m):
                 add_status.preempt(db_connection, {"login_state": FakeLoggedInState(), "dining_halls": dining_halls})
                 
         m.form["dining_hall_name"] = "Leutner"
-        with self.assertRaises(werkzeug.exceptions.NotFound):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="add status failed to reject non-existent amenity id"):
             with mock.patch("page_behaviors.add_status.request", m):
                 add_status.preempt(db_connection, {"login_state": FakeLoggedInState(), "dining_halls": dining_halls})
                 
         real_item = db_connection.inventory_for(self.leutner, 30)[0].item
         m.form["amenity_id"] = real_item.item_id
         with mock.patch("page_behaviors.add_status.request", m):
-            self.assertEqual(add_status.preempt(db_connection, {"login_state": FakeLoggedInState(), "dining_halls": dining_halls}), None)
+            self.assertEqual(add_status.preempt(db_connection, {"login_state": FakeLoggedInState(), "dining_halls": dining_halls}), None, "add status page failed to allow valid request")
+            
+    def test_alerts_page(self):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="alerts page failed to reject not logged in users"):
+            alerts_page.preempt(db_connection, {"login_state": FakeNotLoggedInState()})
+            
+        self.assertEqual(alerts_page.preempt(db_connection, {"login_state": FakeLoggedInState()}), None, "alerts page failed to allow logged in users")
