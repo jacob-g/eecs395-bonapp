@@ -73,10 +73,10 @@ class DBConnector:
 								 (dining_hall.name, date, meal),
 								 lambda row : objects.MenuItemServed.from_db(row, dining_hall))
 
-	def all_menu_items(self):
-		return self.__multiple_rows("SELECT {params} FROM menu_item ORDER BY menu_item.name ASC",
+	def all_menu_items(self, pattern="%"):
+		return self.__multiple_rows("SELECT {params} FROM menu_item WHERE menu_item.name LIKE %s ORDER BY menu_item.name ASC",
 								{"menu_item.id": "menu_item.id", "menu_item.name": "menu_item.name"},
-								(),
+								(pattern, ),
 								lambda row : objects.MenuItem.from_db(row))
 
 	def menu_item(self, menu_item_id):
