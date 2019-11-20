@@ -11,14 +11,15 @@ from pytest_mock import mocker
 from libs import db
 from libs import objects
 from datetime import datetime
-from page_behaviors import dining_hall_page, add_alert, add_review, add_status, alerts_page, delete_review
+from page_behaviors import dining_hall_page, add_alert, add_review, add_status, alerts_page, delete_review, remove_alert,\
+    view_reviews
 import flask
 import werkzeug
 
 db_connection = db.DBConnector();
         
-class MenuItemTest(unittest.TestCase):
-    def test_add_menu_item(self):
+class ObjectModelTests(unittest.TestCase):
+    def test_object_database_interactions(self):
         #get Leutner
         leutner = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner")
         
@@ -91,11 +92,6 @@ class PreemptTests(unittest.TestCase):
     menu = leutner.menu(datetime.today().date(), "dinner", db_connection)
     menu_item_id = menu[0].menu_item.menu_item_id
     
-    def test_dining_hall(self):
-        with self.assertRaises(werkzeug.exceptions.NotFound, msg="dining hall page failed to reject non-existent dining hall"):
-            dining_hall_page.preempt(db_connection, {"dining_halls": db_connection.dining_halls()}, "NONEXISTENTDININGHALL")
-        self.assertEqual(dining_hall_page.preempt(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner"), None, "dining hall page failed to allow valid dining hall")
-        
     def test_add_alert(self):
         m = mock.MagicMock()
         
@@ -191,3 +187,39 @@ class PreemptTests(unittest.TestCase):
                 
         with mock.patch("page_behaviors.delete_review.request", m):
             self.assertEqual(delete_review.preempt(db_connection, {"login_state": admin}), None, "delete review rejects valid request")
+            
+    def test_dining_hall_page(self):
+        m = mock.MagicMock()
+        m.args = {}
+        
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="dining hall page failed to reject invalid dining halls"):
+            with mock.patch("page_behaviors.dining_hall_page.request", m):
+                dining_hall_page.preempt(db_connection, {"dining_halls": db_connection.dining_halls()}, "DININGHALLTHATDOESN'TEXIST")
+        
+        m.args["meal"] = "secondbreakfast"
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="dining hall page failed to reject invalid meals"):
+            with mock.patch("page_behaviors.dining_hall_page.request", m):
+                dining_hall_page.preempt(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")
+        
+        
+        with mock.patch("page_behaviors.dining_hall_page.request", m):
+            m.args["meal"] = "dinner"
+            self.assertEqual(dining_hall_page.preempt(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner"), None, "dining hall page failed to accept valid meal")
+            
+            del m.args["meal"]
+            self.assertEqual(dining_hall_page.preempt(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner"), None, "dining hall page failed to accept no meal provided")
+            
+    def test_remove_alert_page(self):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="remove alert page failed to reject not logged in user"):
+            remove_alert.preempt(db_connection, {"login_state": FakeNotLoggedInState()}, 1)
+            
+        self.assertEqual(remove_alert.preempt(db_connection, {"login_state": FakeLoggedInState()}, 1), None, "remove alert page failed to accept valid user")
+        
+    def test_view_reviews_page(self):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="view reviews page failed to reject invalid ID"):
+            view_reviews.preempt(db_connection, {}, -1)
+        
+        result = db_connection._query("SELECT id FROM menu_item")
+        item_id = result[0][0]
+        
+        self.assertEqual(view_reviews.preempt(db_connection, {}, item_id), None, "view reviews page failed to accept valid ID")
