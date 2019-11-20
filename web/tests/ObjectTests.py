@@ -223,3 +223,28 @@ class PreemptTests(unittest.TestCase):
         item_id = result[0][0]
         
         self.assertEqual(view_reviews.preempt(db_connection, {}, item_id), None, "view reviews page failed to accept valid ID")
+        
+class PageDataTests(unittest.TestCase):
+    leutner = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner")
+    
+    def __init__(self):
+        user_id = "user%d".format(random.randint(1, 100000))
+        db_connection.add_user_if_not_exists(FakeLoggedInState.user)
+    
+    def test_alerts_page(self):
+        result = db_connection._query("SELECT id FROM menu_item ORDER BY RAND()")
+        item_id = result[0][0]
+        
+        db_connection.add_alert(self.user, item_id)
+        
+        alerted_items = [alert.menu_item.menu_item_id for alert in alerts_page.page_data(db_connection, {"login_state": FakeLoggedInState()})["alert_subscriptions"]]
+        menu_ids = [menu_item.menu_item_id for menu_item in alerts_page.page_data(db_connection, {"login_state": FakeLoggedInState()})["all_menu_items"]]
+        
+        self.assertIn(item_id, alerted_items, "alerts page does not contain ID for added alert")
+        self.assertIn(item_id, menu_ids, "alerts page has incomplete menu")
+        
+    def test_dining_hall_page(self):
+        return #TODO: implement this
+    
+    def test_view_reviews_page(self):
+        return #TODO: implement this
