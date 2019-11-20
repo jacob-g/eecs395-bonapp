@@ -64,9 +64,9 @@ class InventoryStatus:
 	def status_str_of(status : float):
 		if status is None:
 			return "Unknown"
-		elif status < 1:
-			return "None"
-		elif status < 2:
+		elif status <= 1:
+			return "Not available"
+		elif status <= 2:
 			return "Limited"
 		else:
 			return "Available"
