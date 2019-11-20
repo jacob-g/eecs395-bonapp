@@ -1,14 +1,18 @@
 import mysql.connector
 import datetime
 from libs import objects
+import json
+import os
+import sys
+
+def get_root_path():
+	return str(os.path.abspath(os.path.dirname(getattr(sys.modules['__main__'], '__file__'))))
 
 class DBConnector:
-	host="localhost"
-	username="bonapp"
-	password="password"
-	dbname="review"
 	def __init__(self):
-		self.link=mysql.connector.connect(host=self.host, user=self.username, password=self.password, database=self.dbname)
+		with open(os.path.join(get_root_path(), "conf", "dbconf.json")) as json_file:
+			db_json = json.load(json_file)
+			self.link=mysql.connector.connect(host=db_json["host"], user=db_json["username"], password=db_json["password"], database=db_json["dbname"])
 
 	def _query(self, query : str, args : tuple =(), makes_changes : bool = False):
 		cursor = self.link.cursor()
