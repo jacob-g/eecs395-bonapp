@@ -3,7 +3,7 @@ from libs.db import DBConnector
 
 type = "action"
 
-def preempt(db : DBConnector, metadata : dict, alert_id : int):    
+def preempt(db : DBConnector, metadata : dict, alert_id : int):  
     if metadata["login_state"].user is None:
         return abort(404)
     

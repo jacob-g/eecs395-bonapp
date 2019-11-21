@@ -1,0 +1,6 @@
+{
+	"host": "localhost",
+	"username": "bonapp",
+	"password": "password",
+	"dbname": "review"
+}

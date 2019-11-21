@@ -1,14 +1,18 @@
 import mysql.connector
 import datetime
 from libs import objects
+import json
+import os
+import sys
+
+def get_root_path():
+	return str(os.path.abspath(os.path.dirname(getattr(sys.modules['__main__'], '__file__'))))
 
 class DBConnector:
-	host="localhost"
-	username="bonapp"
-	password="password"
-	dbname="review"
 	def __init__(self):
-		self.link=mysql.connector.connect(host=self.host, user=self.username, password=self.password, database=self.dbname)
+		with open(os.path.join(get_root_path(), "conf", "dbconf.json")) as json_file:
+			db_json = json.load(json_file)
+			self.link=mysql.connector.connect(host=db_json["host"], user=db_json["username"], password=db_json["password"], database=db_json["dbname"])
 
 	def _query(self, query : str, args : tuple =(), makes_changes : bool = False):
 		cursor = self.link.cursor()
@@ -73,10 +77,10 @@ class DBConnector:
 								 (dining_hall.name, date, meal),
 								 lambda row : objects.MenuItemServed.from_db(row, dining_hall))
 
-	def all_menu_items(self):
-		return self.__multiple_rows("SELECT {params} FROM menu_item ORDER BY menu_item.name ASC",
+	def all_menu_items(self, pattern="%"):
+		return self.__multiple_rows("SELECT {params} FROM menu_item WHERE menu_item.name LIKE %s ORDER BY menu_item.name ASC",
 								{"menu_item.id": "menu_item.id", "menu_item.name": "menu_item.name"},
-								(),
+								(pattern, ),
 								lambda row : objects.MenuItem.from_db(row))
 
 	def menu_item(self, menu_item_id):

@@ -42,7 +42,7 @@ class DiningHall:
 					for meal 
 					in self.hours.items() 
 					if meal[1] is not None and meal[1][1] > time]
-		return later_meals[0] if len(later_meals) > 0 else next(iter(self.hours))
+		return (later_meals[0], datetime.date.today()) if len(later_meals) > 0 else (next(iter(self.hours)), (datetime.date.today() + datetime.timedelta(days=1)))
 	
 class InventoryItem:
 	def __init__(self, item_id : int, name : str):
@@ -64,9 +64,9 @@ class InventoryStatus:
 	def status_str_of(status : float):
 		if status is None:
 			return "Unknown"
-		elif status < 1:
-			return "None"
-		elif status < 2:
+		elif status <= 1:
+			return "Not available"
+		elif status <= 2:
 			return "Limited"
 		else:
 			return "Available"
