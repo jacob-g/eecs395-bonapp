@@ -27,27 +27,30 @@ class DBConnector:
 			cursor.close()
 
 		return result
+	
+	def _row_to_dict(self, result : tuple, keys : tuple):
+		assert len(result) == len(keys)
+		
+		row = {}
+		index : int = 0
+		for dictionary_key in keys:
+			row[dictionary_key] = result[index]
+			index = index + 1
+			
+		return row
 
-	def __single_row(self, query : str, args : tuple, constructor):
-		result = self._query(query, args)
-		if len(result) == 1:
-			return constructor(result[0])
+	def __single_row(self, query : str, params : dict, args : tuple, constructor):
+		result = self._query(query.format(params = ",".join(params.keys())), args)
+		if len(result) == 1:			
+			return constructor(self._row_to_dict(result[0], params.values()))
 		else:
 			return None
 
-	def __multiple_rows(self, query : str, params : dict, args, constructor):
+	def __multiple_rows(self, query : str, params : dict, args : tuple, constructor):
 		output = []
 
 		for result in self._query(query.format(params = ",".join(params.keys())), args):
-			assert len(result) == len(params)
-
-			row = {}
-			index : int = 0
-			for dictionary_key in params.values():
-				row[dictionary_key] = result[index]
-				index = index + 1
-
-			output.append(constructor(row))
+			output.append(constructor(self._row_to_dict(result, params.values())))
 
 		return output
 	
@@ -84,10 +87,16 @@ class DBConnector:
 								lambda row : objects.MenuItem.from_db(row))
 
 	def menu_item(self, menu_item_id):
-		return self.__single_row("SELECT menu_item.name FROM menu_item WHERE id=%s", (menu_item_id,), lambda res : objects.MenuItem(id, res[0]))
+		return self.__single_row("SELECT {params} FROM menu_item WHERE id=%s", 
+								{"menu_item.id": "menu_item.id", "menu_item.name": "menu_item.name"}, 
+								(menu_item_id,),
+								lambda row : objects.MenuItem.from_db(row))
 
 	def user_for(self, user_id : str):
-		return self.__single_row("SELECT id, name, role FROM user WHERE id=%s LIMIT 1", (user_id,), lambda res : objects.User(res[0], res[1], res[2]))
+		return self.__single_row("SELECT {params} FROM user WHERE id=%s LIMIT 1",
+								{"id": "user.id", "name": "user.name", "role": "user.role"},
+								(user_id,),
+								lambda row : objects.User.from_db(row))
 
 	def add_user_if_not_exists(self, user : objects.User):
 		self._query("INSERT INTO `user`(id, name) SELECT %s, %s FROM DUAL WHERE (SELECT COUNT(1) FROM user WHERE id=%s)=0", (user.user_id, user.name, user.user_id), True)
@@ -114,17 +123,26 @@ class DBConnector:
 								 lambda row : objects.InventoryStatus.from_db(row, dining_hall))
 
 	def inventory_item(self, item_id : int):
-		return self.__single_row("SELECT inventory_item.id,inventory_item.name FROM inventory_item WHERE inventory_item.id=%s", (item_id, ), lambda row : objects.InventoryItem(row[0], row[1]))
+		return self.__single_row("SELECT {params} FROM inventory_item WHERE inventory_item.id=%s", 
+								{"inventory_item.id": "inventory_item.id", "inventory_item.name": "inventory_item.name"},
+								(item_id, ), 
+								lambda row : objects.InventoryItem.from_db(row))
 
 	def add_status(self, dining_hall : objects.DiningHall, inventory_item : objects.InventoryItem, status : int, user : objects.User, minutes : int):
 		self._query("INSERT INTO statuses(item_id,status,dining_hall,time_stamp,user) SELECT %s, %s, %s, NOW(), %s FROM DUAL WHERE (SELECT COUNT(1) FROM statuses WHERE user=%s AND dining_hall=%s AND item_id=%s AND time_stamp>(NOW() - INTERVAL %s MINUTE))=0", (inventory_item.item_id, status, dining_hall.name, user.user_id, user.user_id, dining_hall.name, inventory_item.item_id, minutes), True)
 		return
 	
 	def exists_review_with_id(self, review_id : int):
-		return self.__single_row("SELECT COUNT(1) FROM review WHERE id=%s", (review_id,), lambda row : row[0] > 0)
+		return self.__single_row("SELECT {params} FROM review WHERE id=%s", 
+								{"COUNT(1)": "count"},
+								(review_id,),
+								lambda row : row["count"] > 0)
 	
 	def exists_review(self, serves_id : int, user : objects.User):
-		return self.__single_row("SELECT COUNT(1) FROM review WHERE item=%s AND user=%s", (serves_id, user.user_id), lambda row : row[0] > 0)
+		return self.__single_row("SELECT {params} FROM review WHERE item=%s AND user=%s", 
+								{"COUNT(1)": "count"},
+								(serves_id, user.user_id), 
+								lambda row : row["count"] > 0)
 
 	def reviews_for(self, served_menu_item : objects.MenuItemServed):
 		return self.__multiple_rows("SELECT {params} FROM review LEFT JOIN review_of ON review_of.review_id=review.id LEFT JOIN serves ON serves.id=review.item LEFT JOIN user ON user.id=review.user WHERE serves.menu_item_id=%s",
