@@ -13,7 +13,7 @@
             <select name="meal" required>
                 <option value="" disabled> Meal </option>
                 {% for meal in page_data["dining_hall"].hours.keys() %}
-                <option value="{{ meal }}" {% if meal == page_data["meal"] %} selected {% endif %}>{{ meal }}</option>
+                <option value="{{ meal }}" {% if meal == page_data["meal"] %} selected {% endif %}>{{ meal.capitalize() }}</option>
                 {% endfor %}
             </select>
           </div>
@@ -33,7 +33,7 @@
 
 <section class="section">
     <div class="container">
-      <h1 class="title">Menu for {{ page_data["meal"] }}</h1>
+      <h1 class="title">Menu for {{ page_data["meal"].capitalize() }}</h1>
 
       {% for served_item in page_data["menu"] %}
         <div class="columns">
