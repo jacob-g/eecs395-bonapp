@@ -6,7 +6,7 @@ from libs.db import DBConnector
 USER_SESSION_KEY = "user"
 
 class LoginState:
-	def __init__(self, db : DBConnector, ticket : str =None):
+	def __init__(self, db : DBConnector, ticket : str = None):
 		self.client = cas.CASClientV3(
                         renew=False,
                         extra_login_params=False,

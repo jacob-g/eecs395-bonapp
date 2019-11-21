@@ -55,7 +55,7 @@ class InventoryItem:
 
 class InventoryStatus:
 	def __init__(self, item : InventoryItem, dining_hall : DiningHall, status : float):
-		self.item : str = item
+		self.item : InventoryItem = item
 		self.status : float = status
 		self.status_str = InventoryStatus.status_str_of(self.status)
 		self.dining_hall : DiningHall = dining_hall
@@ -117,7 +117,8 @@ class User:
 		return User(in_dict["id"], in_dict["name"], in_dict["role"])
 	
 class Review:
-	def __init__(self, rating : int, comments : str, menu_item : MenuItemServed, reviewer : User):
+	def __init__(self, review_id : int, rating : int, comments : str, menu_item : MenuItemServed, reviewer : User):
+		self.review_id : int = review_id
 		self.rating : int = rating
 		self.comments : str = comments
 		self.menu_item : MenuItemServed = menu_item
@@ -125,7 +126,7 @@ class Review:
 	
 	@staticmethod
 	def from_db(row : tuple, menu_item : MenuItemServed):
-		return Review(row["review.rating"], row["review.comments"], menu_item, User.from_db(row))
+		return Review(row["review.id"], row["review.rating"], row["review.comments"], menu_item, User.from_db(row))
 	
 	def add_to_db(self, db):
 		return db.add_review(self)

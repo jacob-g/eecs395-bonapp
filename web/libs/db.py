@@ -10,7 +10,7 @@ class DBConnector:
 	def __init__(self):
 		self.link=mysql.connector.connect(host=self.host, user=self.username, password=self.password, database=self.dbname)
 
-	def __query(self, query : str, args : tuple =(), makes_changes : bool = False):
+	def _query(self, query : str, args : tuple =(), makes_changes : bool = False):
 		cursor = self.link.cursor()
 		cursor.execute(query, args)
 
@@ -25,7 +25,7 @@ class DBConnector:
 		return result
 
 	def __single_row(self, query : str, args : tuple, constructor):
-		result = self.__query(query, args)
+		result = self._query(query, args)
 		if len(result) == 1:
 			return constructor(result[0])
 		else:
@@ -34,7 +34,7 @@ class DBConnector:
 	def __multiple_rows(self, query : str, params : dict, args, constructor):
 		output = []
 
-		for result in self.__query(query.format(params = ",".join(params.keys())), args):
+		for result in self._query(query.format(params = ",".join(params.keys())), args):
 			assert len(result) == len(params)
 
 			row = {}
@@ -51,9 +51,6 @@ class DBConnector:
 		self.link.close()
 		return
 
-#	def __multiple_rows_provisional(self, query : str, params : dict, args, constructor):
-#		return self.__multiple_rows(query % ",".join(params.keys()), args, tuple(params.values()), constructor)
-
 	def dining_halls(self):
 		return self.__multiple_rows("SELECT {params} FROM dining_hall ORDER BY name ASC",
 											 {"name": "dining_hall.name", "breakfast": "dining_hall.meal.breakfast", "lunch": "dining_hall.meal.lunch", "dinner": "dining_hall.meal.dinner", "brunch": "dining_hall.meal.brunch"},
@@ -61,10 +58,10 @@ class DBConnector:
 											 lambda row : objects.DiningHall.from_db(row))
 
 	def served_item(self, serves_id : int):
-		result = self.__query("SELECT serves.id,serves.meal,menu_item.id,menu_item.name,dining_hall.name,AVG(review.rating) FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN review ON review.item=serves.id LEFT JOIN dining_hall ON dining_hall.name=serves.dining_hall_name WHERE serves.id=%s ORDER BY menu_item.name ASC", (serves_id,))
+		result = self._query("SELECT serves.id,serves.meal,menu_item.id,menu_item.name,dining_hall.name,AVG(review.rating) FROM serves INNER JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN review ON review.item=serves.id LEFT JOIN dining_hall ON dining_hall.name=serves.dining_hall_name WHERE serves.id=%s ORDER BY menu_item.name ASC", (serves_id,))
 
-		row = {}
-		if len(result) == 1:
+		if len(result) == 1 and result[0][0] is not None:
+			row = {}
 			(row["serves.id"], row["serves.meal"], row["menu_item.id"], row["menu_item.name"], row["dining_hall.name"], row["average_rating"]) = result[0]
 			return objects.MenuItemServed.from_db(row, objects.DiningHall.from_db(row))
 		else:
@@ -89,11 +86,15 @@ class DBConnector:
 		return self.__single_row("SELECT id, name, role FROM user WHERE id=%s LIMIT 1", (user_id,), lambda res : objects.User(res[0], res[1], res[2]))
 
 	def add_user_if_not_exists(self, user : objects.User):
-		self.__query("INSERT INTO `user`(id, name) SELECT %s, %s FROM DUAL WHERE (SELECT COUNT(1) FROM user WHERE id=%s)=0", (user.user_id, user.name, user.user_id), True)
+		self._query("INSERT INTO `user`(id, name) SELECT %s, %s FROM DUAL WHERE (SELECT COUNT(1) FROM user WHERE id=%s)=0", (user.user_id, user.name, user.user_id), True)
 		return
 
 	def add_review(self, user : objects.User, rating : int, comments : str, serves_id : int):
-		self.__query("INSERT INTO review(user, rating, comments, item) VALUES(%s, %s, %s, %s)", (user.user_id, rating, comments, serves_id), True)
+		self._query("INSERT INTO review(user, rating, comments, item) VALUES(%s, %s, %s, %s)", (user.user_id, rating, comments, serves_id), True)
+		return
+	
+	def delete_review(self, review_id: int):
+		self._query("DELETE FROM review WHERE id=%s", (review_id, ), True)
 		return
 
 	def allowed_scores(self):
@@ -112,20 +113,23 @@ class DBConnector:
 		return self.__single_row("SELECT inventory_item.id,inventory_item.name FROM inventory_item WHERE inventory_item.id=%s", (item_id, ), lambda row : objects.InventoryItem(row[0], row[1]))
 
 	def add_status(self, dining_hall : objects.DiningHall, inventory_item : objects.InventoryItem, status : int, user : objects.User, minutes : int):
-		self.__query("INSERT INTO statuses(item_id,status,dining_hall,time_stamp,user) SELECT %s, %s, %s, NOW(), %s FROM DUAL WHERE (SELECT COUNT(1) FROM statuses WHERE user=%s AND dining_hall=%s AND item_id=%s AND time_stamp>(NOW() - INTERVAL %s MINUTE))=0", (inventory_item.item_id, status, dining_hall.name, user.user_id, user.user_id, dining_hall.name, inventory_item.item_id, minutes), True)
+		self._query("INSERT INTO statuses(item_id,status,dining_hall,time_stamp,user) SELECT %s, %s, %s, NOW(), %s FROM DUAL WHERE (SELECT COUNT(1) FROM statuses WHERE user=%s AND dining_hall=%s AND item_id=%s AND time_stamp>(NOW() - INTERVAL %s MINUTE))=0", (inventory_item.item_id, status, dining_hall.name, user.user_id, user.user_id, dining_hall.name, inventory_item.item_id, minutes), True)
 		return
+	
+	def exists_review_with_id(self, review_id : int):
+		return self.__single_row("SELECT COUNT(1) FROM review WHERE id=%s", (review_id,), lambda row : row[0] > 0)
 	
 	def exists_review(self, serves_id : int, user : objects.User):
 		return self.__single_row("SELECT COUNT(1) FROM review WHERE item=%s AND user=%s", (serves_id, user.user_id), lambda row : row[0] > 0)
 
 	def reviews_for(self, served_menu_item : objects.MenuItemServed):
 		return self.__multiple_rows("SELECT {params} FROM review LEFT JOIN review_of ON review_of.review_id=review.id LEFT JOIN serves ON serves.id=review.item LEFT JOIN user ON user.id=review.user WHERE serves.menu_item_id=%s",
-								{"review.rating": "review.rating", "review.comments": "review.comments", "user.id": "user.id", "user.name": "user.name", "user.role": "user.role"},
+								{"review.id": "review.id", "review.rating": "review.rating", "review.comments": "review.comments", "user.id": "user.id", "user.name": "user.name", "user.role": "user.role"},
 								(served_menu_item.menu_item.menu_item_id,),
 								lambda row : objects.Review.from_db(row, served_menu_item))
 
 	def add_alert(self, user : objects.User, menu_item_id):
-		self.__query("INSERT INTO alert(user, menu_item_id) SELECT %s, %s FROM DUAL WHERE (SELECT COUNT(1) FROM alert WHERE user=%s AND menu_item_id=%s)=0", (user.user_id, menu_item_id, user.user_id, menu_item_id), True)
+		self._query("INSERT INTO alert(user, menu_item_id) SELECT %s, %s FROM DUAL WHERE (SELECT COUNT(1) FROM alert WHERE user=%s AND menu_item_id=%s)=0", (user.user_id, menu_item_id, user.user_id, menu_item_id), True)
 		return
 
 	def alerts_for(self, user : objects.User):
@@ -135,5 +139,5 @@ class DBConnector:
 								lambda row : objects.AlertSubscription.from_db(row, user))
 
 	def remove_alert(self, alert_id : objects.AlertSubscription, user : objects.User):
-		self.__query("DELETE FROM alert WHERE id=%s AND user=%s", (alert_id, user.user_id), True)
+		self._query("DELETE FROM alert WHERE id=%s AND user=%s", (alert_id, user.user_id), True)
 		return

@@ -32,7 +32,7 @@ def serves_table(id, name, meal, date):
 
 #insert menu_item entities
 def insert_meal(name, dining_hall, meal):
-    query = "insert into menu_item (name) values (%s)"
+    query = "insert ignore into menu_item (name) values (%s)"
     args = (name,)
 
     #retrieve menu_item_ids
@@ -102,7 +102,7 @@ def send_email(user_email, item_name):
 def alert():
     #retrieve all users and items for which they have alerts
     query_retrieve = "select user, menu_item.name from alert, menu_item where alert.menu_item_id=menu_item.id"
-    query_check = "select count(id) from menu_item where name=%s"
+    query_check = "select count(menu_item.id) from menu_item, serves where menu_item.name=%s and menu_item.id=serves.menu_item_id and date(serves.date_of)=date(now())"
 
     cursor = connection.cursor()
     cursor.execute(query_retrieve) #get all alert data
@@ -129,15 +129,15 @@ fribLunchHours = fribTree.xpath('//section[@data-jump-nav-title="Lunch"]//div[@c
 fribDinnerHours = fribTree.xpath('//section[@data-jump-nav-title="Dinner"]//div[@class="site-panel__daypart-time"]/text()')
 
 #get menu items
-leutBreakfastItems = leutTree.xpath('//section[@data-jump-nav-title="Breakfast"]//button[@data-js="site-panel__daypart-item-title"]/text()')
-leutBrunchItems = leutTree.xpath('//section[@data-jump-nav-title="Brunch"]//button[@data-js="site-panel__daypart-item-title"]/text()')
-leutLunchItems = leutTree.xpath('//section[@data-jump-nav-title="Lunch"]//button[@data-js="site-panel__daypart-item-title"]/text()')
-leutDinnerItems = leutTree.xpath('//section[@data-jump-nav-title="Dinner"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+leutBreakfastItems = leutTree.xpath('//section[@data-jump-nav-title="Breakfast"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+leutBrunchItems = leutTree.xpath('//section[@data-jump-nav-title="Brunch"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+leutLunchItems = leutTree.xpath('//section[@data-jump-nav-title="Lunch"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+leutDinnerItems = leutTree.xpath('//section[@data-jump-nav-title="Dinner"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
 
-fribBreakfastItems = fribTree.xpath('//section[@data-jump-nav-title="Breakfast"]//button[@data-js="site-panel__daypart-item-title"]/text()')
-fribBrunchItems = fribTree.xpath('//section[@data-jump-nav-title="Brunch"]//button[@data-js="site-panel__daypart-item-title"]/text()')
-fribLunchItems = fribTree.xpath('//section[@data-jump-nav-title="Lunch"]//button[@data-js="site-panel__daypart-item-title"]/text()')
-fribDinnerItems = fribTree.xpath('//section[@data-jump-nav-title="Dinner"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+fribBreakfastItems = fribTree.xpath('//section[@data-jump-nav-title="Breakfast"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+fribBrunchItems = fribTree.xpath('//section[@data-jump-nav-title="Brunch"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+fribLunchItems = fribTree.xpath('//section[@data-jump-nav-title="Lunch"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
+fribDinnerItems = fribTree.xpath('//section[@data-jump-nav-title="Dinner"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
 
 #write hours to database
 if (len(leutBrunchHours) == 0):
