@@ -14,39 +14,36 @@
   </div>
 </section>
 
+<br>
+
 <div class="tile is-ancestor">
-  <div class="tile is-vertical is-12">
-    <div class="tile is-link">
-      <div class="tile is-parent is-vertical">
-        <article class="tile is-child notification is-link">
-          <p class="title">My Alerts</p>
-          {% for alert_subscription in page_data["alert_subscriptions"] %}
-            <p>
-              {{ alert_subscription.menu_item.name }}
-              <a class="button is-danger" href="/alerts/remove/{{ alert_subscription.alert_id }}">Remove Alert</a>
-            </p>
-          {% endfor %}
-        </article>
-      </div>
-      <div class="tile is-parent ">
-        <article class="tile is-child notification is-info">
-          <form action="/alerts/add" method="post" enctype="multipart/form-data">
-	          <p class="title">New Alert</p>
-	          <p class="subtitle">Select a menu item and dining hall from the dropdown menus to be alerted by email when that item will appear on the menu.</p>
-	            <div class="select">
-	              <select name="food" placeholder="Food">
-	                {% for menu_item in page_data["all_menu_items"] %}
-	                <option value="{{ menu_item.menu_item_id }}"> {{ menu_item.name }} </option>
-	                {% endfor %}
-	              </select>
-	            </div>
-	          <input type="submit" class="button is-success" value="Add Alert">
-          </form>
-        </article>
-      </div>
+  <div class="tile is-vertical is-parent">
+    <div class="tile is-child notification is-info">
+      <p class="title">My Alerts</p>
+      {% for alert_subscription in page_data["alert_subscriptions"] %}
+        <p>
+          {{ alert_subscription.menu_item.name }}
+          <a class="button is-small is-danger" href="/alerts/remove/{{ alert_subscription.alert_id }}">Remove Alert</a>
+        </p>
+      {% endfor %}
+    </div>
+    <div class="tile is-child notification is-danger">
+      <p class="title">New Alert</p>
+      <p class="subtitle">Select a menu item and dining hall from the dropdown menus to be alerted by email when that item will appear on the menu.</p>
+      <form action="/alerts/add" method="post" enctype="multipart/form-data">
+        <div class="select">
+          <select name="food" placeholder="Food">
+            {% for menu_item in page_data["all_menu_items"] %}
+            <option value="{{ menu_item.menu_item_id }}"> {{ menu_item.name }} </option>
+            {% endfor %}
+          </select>
+        </div>
+      <input type="submit" class="button is-success" value="Add Alert">
+    </form>
     </div>
   </div>
 </div>
+
 
 
 

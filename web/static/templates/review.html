@@ -22,11 +22,27 @@
 
 <br>
 
+<div class="columns">
+  <div class="column"> <em>User</em> </div>
+  <div class="column"> <em>Rating</em>  </div>
+  <div class="column"> <em>Comment</em> </div>
+  {% if metadata["login_state"].user.role == "admin" %}
+  <div class="column"> <em>Controls</em> </div>
+  {% endif %}
+</div>
 {% for review in page_data["reviews"] %}
   <div class="columns">
     <div class="column"> {{ review.reviewer.name }} </div>
-    <div class="column"> Rating: {{ review.rating }} </div>
-    <div class="column"> Comment: {{ review.comments }} </div>
+    <div class="column"> {{ review.rating }} </div>
+    <div class="column"> {{ review.comments }} </div>
+    {% if metadata["login_state"].user.role == "admin" %}
+    <div class="column">
+      <form action="/actions/delete_review" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="review_id" value="{{ review.review_id }}">
+        <input type="submit" class="button is-small is-danger" value="Delete Review">
+      </form>
+    </div>
+    {% endif %}
   </div>
 {% endfor %}
 
