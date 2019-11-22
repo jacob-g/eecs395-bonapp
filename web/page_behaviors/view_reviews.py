@@ -1,4 +1,4 @@
-from flask import abort
+from flask import abort, request
 from libs.db import DBConnector
 
 type = "page"
@@ -12,4 +12,6 @@ def page_data(db : DBConnector, metadata : dict, serves_id : int):
     
     assert served_item is not None
     
-    return {"served_item": served_item, "reviews": db.reviews_for(served_item)}
+    page = int(request.args["page"]) if "page" in request.args and str.isdigit(request.args["page"]) and int(request.args["page"]) > 0 else 1
+    
+    return {"served_item": served_item, "reviews": db.reviews_for(served_item, page), "page": page}

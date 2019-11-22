@@ -22,6 +22,23 @@
 
 <br>
 
+<!--  TODO: use page_data["page"] to make this work, Ammar (link to ?page=whatever) -->
+<nav class="pagination is-centered" role="navigation" aria-label="pagination">
+  <a class="pagination-previous">Previous</a>
+  <a class="pagination-next">Next page</a>
+  <ul class="pagination-list">
+    <li><a class="pagination-link" aria-label="Goto page 1">1</a></li>
+    <li><span class="pagination-ellipsis">&hellip;</span></li>
+    <li><a class="pagination-link" aria-label="Goto page 45">45</a></li>
+    <li><a class="pagination-link is-current" aria-label="Page 46" aria-current="page">46</a></li>
+    <li><a class="pagination-link" aria-label="Goto page 47">47</a></li>
+    <li><span class="pagination-ellipsis">&hellip;</span></li>
+    <li><a class="pagination-link" aria-label="Goto page 86">86</a></li>
+  </ul>
+</nav>
+
+<div>Average rating: {{ page_data["served_item"].average_rating }}</div>
+
 <div class="columns">
   <div class="column"> <em>User</em> </div>
   <div class="column"> <em>Rating</em>  </div>

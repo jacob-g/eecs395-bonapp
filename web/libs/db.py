@@ -144,10 +144,13 @@ class DBConnector:
 								(serves_id, user.user_id), 
 								lambda row : row["count"] > 0)
 
-	def reviews_for(self, served_menu_item : objects.MenuItemServed):
-		return self.__multiple_rows("SELECT {params} FROM review LEFT JOIN review_of ON review_of.review_id=review.id LEFT JOIN serves ON serves.id=review.item LEFT JOIN user ON user.id=review.user WHERE serves.menu_item_id=%s",
+	def reviews_for(self, served_menu_item : objects.MenuItemServed, page = 1, page_size = 20):
+		assert page > 0
+		assert page_size > 0
+		
+		return self.__multiple_rows("SELECT {params} FROM review LEFT JOIN serves ON serves.id=review.item LEFT JOIN user ON user.id=review.user WHERE serves.menu_item_id=%s ORDER BY review.id DESC LIMIT %s,%s",
 								{"review.id": "review.id", "review.rating": "review.rating", "review.comments": "review.comments", "user.id": "user.id", "user.name": "user.name", "user.role": "user.role"},
-								(served_menu_item.menu_item.menu_item_id,),
+								(served_menu_item.menu_item.menu_item_id, (page - 1) * page_size, page_size),
 								lambda row : objects.Review.from_db(row, served_menu_item))
 
 	def add_alert(self, user : objects.User, menu_item_id):
