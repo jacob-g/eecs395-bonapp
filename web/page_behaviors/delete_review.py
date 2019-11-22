@@ -16,4 +16,4 @@ def action(db : DBConnector, metadata : dict):
     
     db.delete_review(review_id)
     
-    return redirect(request.referer)
+    return redirect(request.headers.get("Referer"))
