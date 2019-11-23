@@ -19,10 +19,10 @@ import werkzeug
 db_connection = db.DBConnector();
         
 class ObjectModelTests(unittest.TestCase):
+    #get Leutner
+    leutner = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner")
+    
     def test_object_database_interactions(self):
-        #get Leutner
-        leutner = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner")
-        
         #create a menu item
         menu_item_id = random.randint(1, 100000)
         menu_item_name = f"MenuItem{menu_item_id}"
@@ -31,7 +31,7 @@ class ObjectModelTests(unittest.TestCase):
         db_connection._query("INSERT INTO serves(date_of, menu_item_id, meal, dining_hall_name) VALUES(%s, %s, %s, %s)", (datetime.today().date(), menu_item_id, "dinner", "Leutner"), True)
         
         #make sure it can be retrieved
-        menu = leutner.menu(datetime.today().date(), "dinner", db_connection)
+        menu = self.leutner.menu(datetime.today().date(), "dinner", db_connection)
         served_items = [served_item for served_item in menu if served_item.menu_item.menu_item_id == menu_item_id]
         
         self.assertEqual(len(served_items), 1, "menu item not added and marked as served properly")
@@ -67,19 +67,31 @@ class ObjectModelTests(unittest.TestCase):
         db_connection._query("INSERT INTO inventory_item(id, name) VALUES(%s, %s)", (inventory_item_id, inventory_item_name, ), True)
         
         def get_inventory():
-            return [inventory_item_status for inventory_item_status in leutner.inventory(1, db_connection) if inventory_item_status.item.item_id == inventory_item_id]
+            return [inventory_item_status for inventory_item_status in self.leutner.inventory(1, db_connection) if inventory_item_status.item.item_id == inventory_item_id]
         
         inventory = get_inventory()
         self.assertEqual(len(inventory), 1, "inventory status not listed")
         self.assertEqual(inventory[0].status_str, "Unknown", "status should not be set")
         
-        db_connection.add_status(leutner, inventory[0].item, 3, test_user, 15)
+        db_connection.add_status(self.leutner, inventory[0].item, 3, test_user, 15)
         inventory = get_inventory()
         self.assertEqual(inventory[0].status_str, "Available", "status should be available")
         
-        db_connection.add_status(leutner, inventory[0].item, 0, test_user, 15)
+        db_connection.add_status(self.leutner, inventory[0].item, 0, test_user, 15)
         inventory = get_inventory()
         self.assertEqual(inventory[0].status_str, "Available", "status should be updated twice")
+        
+    def test_alerts(self):
+        result = db_connection._query("SELECT id FROM serves")
+        item = db_connection.served_item(result[0][0])
+        
+        db_connection.add_alert(FakeLoggedInState.user, item.menu_item.menu_item_id)
+        
+        self.assertTrue(item.menu_item.menu_item_id in [alert.menu_item.menu_item_id for alert in db_connection.alerts_for(FakeLoggedInState.user)], "failed to add alert")
+        
+        alert = [alert for alert in db_connection.alerts_for(FakeLoggedInState.user) if alert.menu_item.menu_item_id == item.menu_item.menu_item_id][0]
+        db_connection.remove_alert(alert.alert_id, FakeLoggedInState.user)
+        self.assertFalse(item.menu_item.menu_item_id in [alert.menu_item.menu_item_id for alert in db_connection.alerts_for(FakeLoggedInState.user)], "failed to remove alert")
         
     def test_dining_hall(self):
         fake_dining_hall = objects.DiningHall("Not Fribley", {
@@ -251,7 +263,6 @@ class PageDataTests(unittest.TestCase):
     leutner = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner")
     
     def __init__(self):
-        user_id = "user%d".format(random.randint(1, 100000))
         db_connection.add_user_if_not_exists(FakeLoggedInState.user)
     
     def test_alerts_page(self):
