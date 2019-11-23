@@ -10,7 +10,7 @@ import mock
 from pytest_mock import mocker
 from libs import db
 from libs import objects
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from page_behaviors import dining_hall_page, add_alert, add_review, add_status, alerts_page, delete_review, remove_alert,\
     view_reviews
 import flask
@@ -80,6 +80,19 @@ class ObjectModelTests(unittest.TestCase):
         db_connection.add_status(leutner, inventory[0].item, 0, test_user, 15)
         inventory = get_inventory()
         self.assertEqual(inventory[0].status_str, "Available", "status should be updated twice")
+        
+    def test_dining_hall(self):
+        fake_dining_hall = objects.DiningHall("Not Fribley", {
+            "meal1": (time(10, 0, 0), time(12, 0, 0)),
+            "meal2": (time(14, 0, 0), time(16, 0, 0))
+            })
+        
+        self.assertEqual(fake_dining_hall.next_meal_after(time(9, 0, 0)), ("meal1", datetime.today().date()), "DiningHall.next_meal_after failed for when no meals have occurred yet")
+        self.assertEqual(fake_dining_hall.next_meal_after(time(11, 0, 0)), ("meal1", datetime.today().date()), "DiningHall.next_meal_after failed during mealtime")
+        self.assertEqual(fake_dining_hall.next_meal_after(time(13, 0, 0)), ("meal2", datetime.today().date()), "DiningHall.next_meal_after failed between meals")
+        self.assertEqual(fake_dining_hall.next_meal_after(time(14, 0, 0)), ("meal2", datetime.today().date()), "DiningHall.next_meal_after failed at beginning of meal")
+        self.assertEqual(fake_dining_hall.next_meal_after(time(15, 0, 0)), ("meal2", datetime.today().date()), "DiningHall.next_meal_after failed during second meal")
+        self.assertEqual(fake_dining_hall.next_meal_after(time(16, 0, 1)), ("meal1", (datetime.today() + timedelta(days=1)).date()), "DiningHall.next_meal_after failed for when last meal is over")
         
 class FakeNotLoggedInState:        
     user = None
@@ -226,7 +239,6 @@ class PreemptTests(unittest.TestCase):
         result = db_connection._query("SELECT id FROM menu_item")
         item_id = result[0][0]
         
-        self.assertEqual(view_reviews.preempt(db_connection, {}, item_id), None, "view reviews page failed to accept valid ID")
         with mock.patch("page_behaviors.view_reviews.request", m):
             self.assertEqual(view_reviews.preempt(db_connection, {}, item_id), None, "view reviews page failed to accept valid ID")
         
@@ -255,7 +267,24 @@ class PageDataTests(unittest.TestCase):
         self.assertIn(item_id, menu_ids, "alerts page has incomplete menu")
         
     def test_dining_hall_page(self):
-        return #TODO: implement this
+        m = mock.MagicMock()
+        m.args = {"meal": "lunch"}
+        
+        with mock.patch("page_behaviors.dining_hall_page.request", m): 
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["dining_hall"].name, "Leutner", "dining hall page got wrong dining hall")        
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["meal"], "lunch", "dining hall page got wrong meal")        
+            m.args["meal"] = "dinner"
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["meal"], "dinner", "dining hall page got wrong meal")
+        
+            m.args["date"] = "2019-01-02"
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].day, 2, "dining hall page got wrong day")
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].month, 1, "dining hall page got wrong month")
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].year, 2019, "dining hall page got wrong date")
+            
+            m.args["date"] = "randomstringofgarbage"
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].day, datetime.today().day, "dining hall page didn't ignore invalid date")
+        
+        return
     
     def test_view_reviews_page(self):
         m = mock.MagicMock()
