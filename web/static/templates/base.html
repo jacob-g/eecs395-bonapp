@@ -13,16 +13,12 @@
       <nav class="navbar is-dark">
           <div class="navbar-brand">
             <a class="navbar-item" href="/">Home</a>
-          </div>
-          <div class="navbar-menu">
-              <div class="navbar-end">
-                {% if metadata.login_state.user %}
-                    <a class="navbar-item" href="/alerts">Alerts</a>
-                    <a class="navbar-item" href="{{ metadata.login_state.logout_url }}">Log Out</a>
-                {% else %}
-                        <a class="navbar-item" href="{{ metadata.login_state.login_url }}">Login</a>
-                {% endif %}
-              </div>
+            {% if metadata.login_state.user %}
+                <a class="navbar-item" href="/alerts">Alerts</a>
+                <a class="navbar-item" href="{{ metadata.login_state.logout_url }}">Log Out</a>
+            {% else %}
+                    <a class="navbar-item" href="{{ metadata.login_state.login_url }}">Login</a>
+            {% endif %}
           </div>
       </nav>
 

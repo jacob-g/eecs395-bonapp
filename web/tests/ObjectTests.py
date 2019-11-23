@@ -216,13 +216,24 @@ class PreemptTests(unittest.TestCase):
         self.assertEqual(remove_alert.preempt(db_connection, {"login_state": FakeLoggedInState()}, 1), None, "remove alert page failed to accept valid user")
         
     def test_view_reviews_page(self):
+        m = mock.MagicMock()
+        m.args = {"page": "1"}
+        
         with self.assertRaises(werkzeug.exceptions.NotFound, msg="view reviews page failed to reject invalid ID"):
-            view_reviews.preempt(db_connection, {}, -1)
+            with mock.patch("page_behaviors.view_reviews.request", m):
+                view_reviews.preempt(db_connection, {}, -1)
         
         result = db_connection._query("SELECT id FROM menu_item")
         item_id = result[0][0]
         
         self.assertEqual(view_reviews.preempt(db_connection, {}, item_id), None, "view reviews page failed to accept valid ID")
+        with mock.patch("page_behaviors.view_reviews.request", m):
+            self.assertEqual(view_reviews.preempt(db_connection, {}, item_id), None, "view reviews page failed to accept valid ID")
+        
+        m.args = {"page": "10000"}
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="view reviews page failed to reject invalid page"):
+            with mock.patch("page_behaviors.view_reviews.request", m):
+                view_reviews.preempt(db_connection, {}, -1)
         
 class PageDataTests(unittest.TestCase):
     leutner = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner")
@@ -247,4 +258,18 @@ class PageDataTests(unittest.TestCase):
         return #TODO: implement this
     
     def test_view_reviews_page(self):
-        return #TODO: implement this
+        m = mock.MagicMock()
+        
+        result = db_connection._query("SELECT id FROM menu_item")
+        item_id = result[0][0]
+        
+        db_mock = mock.MagicMock()
+        db_mock.reviews_for = lambda reviews : range(95)
+        m.args = {"page": "1"}
+        with mock.patch("page_behaviors.view_reviews.request", m):
+            self.assertEqual(len(view_reviews.page_data(db_mock, {}, item_id)["reviews"]), 20, "failed to paginate properly for view_reviews page")
+            m.args = {"page": "5"}
+            self.assertEqual(len(view_reviews.page_data(db_mock, {}, item_id)["reviews"]), 15, "failed to paginate properly for view_reviews page")
+            self.assertEqual(view_reviews.page_data(db_mock, {}, item_id)["reviews"][0], 80, "failed to paginate properly for view_reviews page")
+        
+        return
