@@ -49,7 +49,7 @@ class ObjectModelTests(unittest.TestCase):
         
         #leave a review
         rating_num = random.randint(1, 5)
-        review_text = "test review %i".format(random.randint(1, 100000))
+        review_text = "test review %s".format(random.randint(1, 100000))
         db_connection.add_review(test_user, rating_num, review_text, served_item.serve_id)
         reviews = db_connection.reviews_for(served_item)
         self.assertEqual(len(reviews), 1, "review not properly added")
@@ -63,7 +63,7 @@ class ObjectModelTests(unittest.TestCase):
         
         #create some random inventory item
         inventory_item_id = random.randint(1, 100000)
-        inventory_item_name = "Inventory Item %i".format(random.randint(1, 100000))
+        inventory_item_name = "Inventory Item %s".format(random.randint(1, 100000))
         db_connection._query("INSERT INTO inventory_item(id, name) VALUES(%s, %s)", (inventory_item_id, inventory_item_name, ), True)
         
         def get_inventory():
