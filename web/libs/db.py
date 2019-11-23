@@ -40,11 +40,8 @@ class DBConnector:
 		return row
 
 	def __single_row(self, query : str, params : dict, args : tuple, constructor):
-		result = self._query(query.format(params = ",".join(params.keys())), args)
-		if len(result) == 1:			
-			return constructor(self._row_to_dict(result[0], params.values()))
-		else:
-			return None
+		results = self.__multiple_rows(query, params, args, constructor)
+		return results[0] if len(results) == 1 else None
 
 	def __multiple_rows(self, query : str, params : dict, args : tuple, constructor):
 		output = []
@@ -145,7 +142,7 @@ class DBConnector:
 								lambda row : row["count"] > 0)
 
 	def reviews_for(self, served_menu_item : objects.MenuItemServed):
-		return self.__multiple_rows("SELECT {params} FROM review LEFT JOIN review_of ON review_of.review_id=review.id LEFT JOIN serves ON serves.id=review.item LEFT JOIN user ON user.id=review.user WHERE serves.menu_item_id=%s",
+		return self.__multiple_rows("SELECT {params} FROM review LEFT JOIN serves ON serves.id=review.item LEFT JOIN user ON user.id=review.user WHERE serves.menu_item_id=%s ORDER BY review.id DESC",
 								{"review.id": "review.id", "review.rating": "review.rating", "review.comments": "review.comments", "user.id": "user.id", "user.name": "user.name", "user.role": "user.role"},
 								(served_menu_item.menu_item.menu_item_id,),
 								lambda row : objects.Review.from_db(row, served_menu_item))

@@ -216,10 +216,55 @@ class PreemptTests(unittest.TestCase):
         self.assertEqual(remove_alert.preempt(db_connection, {"login_state": FakeLoggedInState()}, 1), None, "remove alert page failed to accept valid user")
         
     def test_view_reviews_page(self):
+        m = mock.MagicMock()
+        m.args = {"page": "1"}
+        
         with self.assertRaises(werkzeug.exceptions.NotFound, msg="view reviews page failed to reject invalid ID"):
-            view_reviews.preempt(db_connection, {}, -1)
+            with mock.patch("page_behaviors.view_reviews.request", m):
+                view_reviews.preempt(db_connection, {}, -1)
         
         result = db_connection._query("SELECT id FROM menu_item")
         item_id = result[0][0]
         
         self.assertEqual(view_reviews.preempt(db_connection, {}, item_id), None, "view reviews page failed to accept valid ID")
+        with mock.patch("page_behaviors.view_reviews.request", m):
+            self.assertEqual(view_reviews.preempt(db_connection, {}, item_id), None, "view reviews page failed to accept valid ID")
+        
+        m.args = {"page": "10000"}
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="view reviews page failed to reject invalid page"):
+            with mock.patch("page_behaviors.view_reviews.request", m):
+                view_reviews.preempt(db_connection, {}, -1)
+                
+        db_mock = mock.MagicMock()
+        db_mock.reviews_for = lambda reviews : range(95)
+        m.args = {"page": "1"}
+        with mock.patch("page_behaviors.view_reviews.request", m):
+            self.assertEqual(len(view_reviews.page_data(db_mock, {}, item_id)["reviews"]), 20, "failed to paginate properly for view_reviews page")
+            m.args = {"page": "5"}
+            self.assertEqual(len(view_reviews.page_data(db_mock, {}, item_id)["reviews"]), 15, "failed to paginate properly for view_reviews page")
+            self.assertEqual(view_reviews.page_data(db_mock, {}, item_id)["reviews"][0], 80, "failed to paginate properly for view_reviews page")
+        
+class PageDataTests(unittest.TestCase):
+    leutner = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner")
+    
+    def __init__(self):
+        user_id = "user%d".format(random.randint(1, 100000))
+        db_connection.add_user_if_not_exists(FakeLoggedInState.user)
+    
+    def test_alerts_page(self):
+        result = db_connection._query("SELECT id FROM menu_item ORDER BY RAND()")
+        item_id = result[0][0]
+        
+        db_connection.add_alert(self.user, item_id)
+        
+        alerted_items = [alert.menu_item.menu_item_id for alert in alerts_page.page_data(db_connection, {"login_state": FakeLoggedInState()})["alert_subscriptions"]]
+        menu_ids = [menu_item.menu_item_id for menu_item in alerts_page.page_data(db_connection, {"login_state": FakeLoggedInState()})["all_menu_items"]]
+        
+        self.assertIn(item_id, alerted_items, "alerts page does not contain ID for added alert")
+        self.assertIn(item_id, menu_ids, "alerts page has incomplete menu")
+        
+    def test_dining_hall_page(self):
+        return #TODO: implement this
+    
+    def test_view_reviews_page(self):
+        return #TODO: implement this
