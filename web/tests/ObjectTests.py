@@ -10,7 +10,7 @@ import mock
 from pytest_mock import mocker
 from libs import db
 from libs import objects
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from page_behaviors import dining_hall_page, add_alert, add_review, add_status, alerts_page, delete_review, remove_alert,\
     view_reviews
 import flask
@@ -19,10 +19,10 @@ import werkzeug
 db_connection = db.DBConnector();
         
 class ObjectModelTests(unittest.TestCase):
+    #get Leutner
+    leutner = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner")
+    
     def test_object_database_interactions(self):
-        #get Leutner
-        leutner = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner")
-        
         #create a menu item
         menu_item_id = random.randint(1, 100000)
         menu_item_name = f"MenuItem{menu_item_id}"
@@ -31,7 +31,7 @@ class ObjectModelTests(unittest.TestCase):
         db_connection._query("INSERT INTO serves(date_of, menu_item_id, meal, dining_hall_name) VALUES(%s, %s, %s, %s)", (datetime.today().date(), menu_item_id, "dinner", "Leutner"), True)
         
         #make sure it can be retrieved
-        menu = leutner.menu(datetime.today().date(), "dinner", db_connection)
+        menu = self.leutner.menu(datetime.today().date(), "dinner", db_connection)
         served_items = [served_item for served_item in menu if served_item.menu_item.menu_item_id == menu_item_id]
         
         self.assertEqual(len(served_items), 1, "menu item not added and marked as served properly")
@@ -49,7 +49,7 @@ class ObjectModelTests(unittest.TestCase):
         
         #leave a review
         rating_num = random.randint(1, 5)
-        review_text = "test review %i".format(random.randint(1, 100000))
+        review_text = "test review %s".format(random.randint(1, 100000))
         db_connection.add_review(test_user, rating_num, review_text, served_item.serve_id)
         reviews = db_connection.reviews_for(served_item)
         self.assertEqual(len(reviews), 1, "review not properly added")
@@ -63,23 +63,48 @@ class ObjectModelTests(unittest.TestCase):
         
         #create some random inventory item
         inventory_item_id = random.randint(1, 100000)
-        inventory_item_name = "Inventory Item %i".format(random.randint(1, 100000))
+        inventory_item_name = "Inventory Item %s".format(random.randint(1, 100000))
         db_connection._query("INSERT INTO inventory_item(id, name) VALUES(%s, %s)", (inventory_item_id, inventory_item_name, ), True)
         
         def get_inventory():
-            return [inventory_item_status for inventory_item_status in leutner.inventory(1, db_connection) if inventory_item_status.item.item_id == inventory_item_id]
+            return [inventory_item_status for inventory_item_status in self.leutner.inventory(1, db_connection) if inventory_item_status.item.item_id == inventory_item_id]
         
         inventory = get_inventory()
         self.assertEqual(len(inventory), 1, "inventory status not listed")
         self.assertEqual(inventory[0].status_str, "Unknown", "status should not be set")
         
-        db_connection.add_status(leutner, inventory[0].item, 3, test_user, 15)
+        db_connection.add_status(self.leutner, inventory[0].item, 3, test_user, 15)
         inventory = get_inventory()
         self.assertEqual(inventory[0].status_str, "Available", "status should be available")
         
-        db_connection.add_status(leutner, inventory[0].item, 0, test_user, 15)
+        db_connection.add_status(self.leutner, inventory[0].item, 0, test_user, 15)
         inventory = get_inventory()
         self.assertEqual(inventory[0].status_str, "Available", "status should be updated twice")
+        
+    def test_alerts(self):
+        result = db_connection._query("SELECT id FROM serves")
+        item = db_connection.served_item(result[0][0])
+        
+        db_connection.add_alert(FakeLoggedInState.user, item.menu_item.menu_item_id)
+        
+        self.assertTrue(item.menu_item.menu_item_id in [alert.menu_item.menu_item_id for alert in db_connection.alerts_for(FakeLoggedInState.user)], "failed to add alert")
+        
+        alert = [alert for alert in db_connection.alerts_for(FakeLoggedInState.user) if alert.menu_item.menu_item_id == item.menu_item.menu_item_id][0]
+        db_connection.remove_alert(alert.alert_id, FakeLoggedInState.user)
+        self.assertFalse(item.menu_item.menu_item_id in [alert.menu_item.menu_item_id for alert in db_connection.alerts_for(FakeLoggedInState.user)], "failed to remove alert")
+        
+    def test_dining_hall(self):
+        fake_dining_hall = objects.DiningHall("Not Fribley", {
+            "meal1": (time(10, 0, 0), time(12, 0, 0)),
+            "meal2": (time(14, 0, 0), time(16, 0, 0))
+            })
+        
+        self.assertEqual(fake_dining_hall.next_meal_after(time(9, 0, 0)), ("meal1", datetime.today().date()), "DiningHall.next_meal_after failed for when no meals have occurred yet")
+        self.assertEqual(fake_dining_hall.next_meal_after(time(11, 0, 0)), ("meal1", datetime.today().date()), "DiningHall.next_meal_after failed during mealtime")
+        self.assertEqual(fake_dining_hall.next_meal_after(time(13, 0, 0)), ("meal2", datetime.today().date()), "DiningHall.next_meal_after failed between meals")
+        self.assertEqual(fake_dining_hall.next_meal_after(time(14, 0, 0)), ("meal2", datetime.today().date()), "DiningHall.next_meal_after failed at beginning of meal")
+        self.assertEqual(fake_dining_hall.next_meal_after(time(15, 0, 0)), ("meal2", datetime.today().date()), "DiningHall.next_meal_after failed during second meal")
+        self.assertEqual(fake_dining_hall.next_meal_after(time(16, 0, 1)), ("meal1", (datetime.today() + timedelta(days=1)).date()), "DiningHall.next_meal_after failed for when last meal is over")
         
 class FakeNotLoggedInState:        
     user = None
@@ -216,19 +241,28 @@ class PreemptTests(unittest.TestCase):
         self.assertEqual(remove_alert.preempt(db_connection, {"login_state": FakeLoggedInState()}, 1), None, "remove alert page failed to accept valid user")
         
     def test_view_reviews_page(self):
+        m = mock.MagicMock()
+        m.args = {"page": "1"}
+        
         with self.assertRaises(werkzeug.exceptions.NotFound, msg="view reviews page failed to reject invalid ID"):
-            view_reviews.preempt(db_connection, {}, -1)
+            with mock.patch("page_behaviors.view_reviews.request", m):
+                view_reviews.preempt(db_connection, {}, -1)
         
         result = db_connection._query("SELECT id FROM menu_item")
         item_id = result[0][0]
         
-        self.assertEqual(view_reviews.preempt(db_connection, {}, item_id), None, "view reviews page failed to accept valid ID")
+        with mock.patch("page_behaviors.view_reviews.request", m):
+            self.assertEqual(view_reviews.preempt(db_connection, {}, item_id), None, "view reviews page failed to accept valid ID")
+        
+        m.args = {"page": "10000"}
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="view reviews page failed to reject invalid page"):
+            with mock.patch("page_behaviors.view_reviews.request", m):
+                view_reviews.preempt(db_connection, {}, -1)
         
 class PageDataTests(unittest.TestCase):
     leutner = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner")
     
     def __init__(self):
-        user_id = "user%d".format(random.randint(1, 100000))
         db_connection.add_user_if_not_exists(FakeLoggedInState.user)
     
     def test_alerts_page(self):
@@ -244,7 +278,38 @@ class PageDataTests(unittest.TestCase):
         self.assertIn(item_id, menu_ids, "alerts page has incomplete menu")
         
     def test_dining_hall_page(self):
-        return #TODO: implement this
+        m = mock.MagicMock()
+        m.args = {"meal": "lunch"}
+        
+        with mock.patch("page_behaviors.dining_hall_page.request", m): 
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["dining_hall"].name, "Leutner", "dining hall page got wrong dining hall")        
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["meal"], "lunch", "dining hall page got wrong meal")        
+            m.args["meal"] = "dinner"
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["meal"], "dinner", "dining hall page got wrong meal")
+        
+            m.args["date"] = "2019-01-02"
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].day, 2, "dining hall page got wrong day")
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].month, 1, "dining hall page got wrong month")
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].year, 2019, "dining hall page got wrong date")
+            
+            m.args["date"] = "randomstringofgarbage"
+            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].day, datetime.today().day, "dining hall page didn't ignore invalid date")
+        
+        return
     
     def test_view_reviews_page(self):
-        return #TODO: implement this
+        m = mock.MagicMock()
+        
+        result = db_connection._query("SELECT id FROM menu_item")
+        item_id = result[0][0]
+        
+        db_mock = mock.MagicMock()
+        db_mock.reviews_for = lambda reviews : range(95)
+        m.args = {"page": "1"}
+        with mock.patch("page_behaviors.view_reviews.request", m):
+            self.assertEqual(len(view_reviews.page_data(db_mock, {}, item_id)["reviews"]), 20, "failed to paginate properly for view_reviews page")
+            m.args = {"page": "5"}
+            self.assertEqual(len(view_reviews.page_data(db_mock, {}, item_id)["reviews"]), 15, "failed to paginate properly for view_reviews page")
+            self.assertEqual(view_reviews.page_data(db_mock, {}, item_id)["reviews"][0], 80, "failed to paginate properly for view_reviews page")
+        
+        return
