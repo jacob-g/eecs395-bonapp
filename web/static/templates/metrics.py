@@ -1,15 +1,25 @@
-from flask import abort
-from libs.db import DBConnector
+import plotly
+import plotly.graph_objs as go
+import pandas as pd
+import numpy as np
+import json
 
-type = "page"
+def create_plot():
 
-def preempt(db : DBConnector, metadata : dict, serves_id : int):
-    if db.served_item(serves_id) is None:
-        return abort(404)
 
-def page_data(db : DBConnector, metadata : dict, serves_id : int):
-    served_item = db.served_item(serves_id)
-    
-    assert served_item is not None
-    
-    return {"served_item": served_item, "reviews": db.reviews_for(served_item)}
+    N = 40
+    x = np.linspace(0, 1, N)
+    y = np.random.randn(N)
+    df = pd.DataFrame({'x': x, 'y': y}) # creating a sample dataframe
+
+
+    data = [
+        go.Bar(
+            x=df['x'], # assign x as the dataframe column 'x'
+            y=df['y']
+        )
+    ]
+
+    graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return graphJSON
