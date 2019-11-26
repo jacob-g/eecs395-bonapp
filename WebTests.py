@@ -56,7 +56,7 @@ class WebTests(unittest.TestCase):
         cursor.execute(query,args)
 
         #check that breakfast hours were inserted correctly
-        self.assertEqual(cursor.fetchall()[0][0],"7:00 am - 10:30 am", "breakfast hours not inserted correctly")
+        self.assertEqual(cursor.fetchall()[0][0],"7:00 am - 10:30 am", "dining hall hours not inserted correctly")
 
     def test_insert_meal(self):
         #write menu items to database
@@ -64,6 +64,14 @@ class WebTests(unittest.TestCase):
         write_to_db(brunchItems, "Leutner", "Lunch")
         write_to_db(lunchItems, "Leutner", "Lunch")
         write_to_db(dinnerItems, "Leutner", "Dinner")
+
+        query = "select count(name) from menu_item where name=%s"
+        args = [("Scrambled Harissa Tofu",),("Apple Cinnamon Buttermilk Pancakes",),("Crispy Buffalo Cauliflower",),("Made to Order Quesadilla Station",),("Vegetable Pasta Minestrone",),("Baked Potato",),("Curry Bar",),("Chicken with Preserved Lemon and Olives",)]
+
+        cursor = connection.cursor()
+        for x in range(len(args)):
+            cursor.execute(query,args[x])
+            self.assertEqual(cursor.fetchall()[0][0],1,"missing menu item")
 
     #def test_serves(self):
 
