@@ -12,7 +12,7 @@ from libs import db
 from libs import objects
 from datetime import datetime, time, timedelta
 from page_behaviors import dining_hall_page, add_alert, add_review, add_status, alerts_page, delete_review, remove_alert,\
-    view_reviews
+    view_reviews, send_contact
 import flask
 import werkzeug
 
@@ -239,6 +239,26 @@ class PreemptTests(unittest.TestCase):
             remove_alert.preempt(db_connection, {"login_state": FakeNotLoggedInState()}, 1)
             
         self.assertEqual(remove_alert.preempt(db_connection, {"login_state": FakeLoggedInState()}, 1), None, "remove alert page failed to accept valid user")
+      
+    def test_send_contact(self):
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="send contact page failed to reject not logged in user"):
+            send_contact.preempt(db_connection, {"login_state": FakeNotLoggedInState()})
+            
+        m = mock.MagicMock()
+        m.form = {}    
+        
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="send contact page failed to missing title"):
+            with mock.patch("page_behaviors.send_contact.request", m):
+                send_contact.preempt(db_connection, {"login_state": FakeLoggedInState()})
+        
+        m.form = {"title": "Title"}
+        with self.assertRaises(werkzeug.exceptions.NotFound, msg="send contact page failed to missing comment"):
+            with mock.patch("page_behaviors.send_contact.request", m):
+                send_contact.preempt(db_connection, {"login_state": FakeLoggedInState()})
+                
+        m.form = {"title": "Title", "comment": "Comment"}
+        with mock.patch("page_behaviors.send_contact.request", m):
+            self.assertEqual(send_contact.preempt(db_connection, {"login_state": FakeLoggedInState()}), None, "send contact page failed to accept valid request")
         
     def test_view_reviews_page(self):
         m = mock.MagicMock()
