@@ -9,6 +9,11 @@
         </div>
       </div>
     </section>
+    
+{% if "sent" in request.args %}
+	<div class="notification is-success">Your message has been sent successfuly.</div>
+{% endif %}
+    
   <div class="container">
     <div class="tile is-ancestor">
       <div class="tile is-vertical is-12">
@@ -16,7 +21,8 @@
           <div class="tile is-parent is-vertical">
             <article class="tile is-child notification is-link">
               <p class="subtitle">Contact Us</p>
-                  <form>
+              {% if metadata["login_state"].user %}
+              	<form action="/actions/send_contact" method="post" enctype="multipart/form-data">
                     <div class="field">
                       <label class="label" for="title">Title</label>
                       <input required class="input" name="title" type="text" placeholder="Comment Title">
@@ -29,6 +35,9 @@
                       </span>
                     </button>
                   </form>
+              {% else %}
+                  <p>Please log in to access the contact form.</p>
+              {% endif %}
             </article>
           </div>
           <div class="tile is-parent ">
