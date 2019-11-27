@@ -41,7 +41,7 @@
           <div class="column">  Rating: {{served_item.average_rating}} </div>
           <div class="column"> <a href="/reviews/specific/{{ served_item.serve_id }}" class="button is-success">Read Reviews</a></div>
         </div>
-        {% if metadata.login_state.user %}
+        {% if metadata["login_state"].user %}
         <div class="container">
           <form action="/actions/leave_review" method="post" enctype="multipart/form-data">
             <input type="hidden" name="serves_id" value="{{ served_item.serve_id }}">
