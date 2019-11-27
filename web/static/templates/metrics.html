@@ -1,6 +1,13 @@
-<div class="chart" id="bargraph">
-    <script>
-        var graphs = {{plot | safe}};
-        Plotly.plot('bargraph',graphs,{});
-    </script>
-</div>
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="hero has-text-centered">
+	<div class="chart" id="bargraph">
+	    <script>
+	        var graphs = {{ page_data["plot"] | safe}};
+	        Plotly.plot('bargraph',graphs,{});
+	    </script>
+	</div>
+</section>
+
+{% endblock %}

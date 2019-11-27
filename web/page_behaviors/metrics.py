@@ -1,8 +1,13 @@
+from libs.db import DBConnector
 import plotly
 import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
 import json
+
+
+
+type = "page"
 
 def create_plot():
 
@@ -23,3 +28,10 @@ def create_plot():
     graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
 
     return graphJSON
+
+
+def preempt(db : DBConnector, metadata : dict):    
+    return None
+    
+def page_data(db : DBConnector, metadata : dict):
+    return {"plot": create_plot()}

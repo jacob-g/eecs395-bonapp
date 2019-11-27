@@ -1,7 +1,7 @@
 from flask import Flask, send_from_directory
 from libs.db import DBConnector
 from libs import loader
-from page_behaviors import index, static_page, logout, add_review, delete_review, add_status, dining_hall_page, view_reviews, alerts_page, add_alert, remove_alert
+from page_behaviors import index, static_page, logout, add_review, delete_review, add_status, dining_hall_page, view_reviews, alerts_page, add_alert, remove_alert, metrics
 
 #TODO: put this login into its own file
 app = Flask(__name__)
@@ -23,7 +23,8 @@ routes = {
 	"/reviews/specific/<serves_id>": {"template": "review.html", "behavior": view_reviews, "methods": ["GET"]},
 	"/alerts": {"template": "alerts.html", "behavior": alerts_page, "methods": ["GET"]},
 	"/alerts/add": {"template": "empty.html", "behavior": add_alert, "methods": ["POST"]},
-	"/alerts/remove/<alert_id>": {"template": "empty.html", "behavior": remove_alert, "methods": ["GET"]}
+	"/alerts/remove/<alert_id>": {"template": "empty.html", "behavior": remove_alert, "methods": ["GET"]},
+	"/metrics": {"template": "metrics.html", "behavior": metrics, "methods": ["GET"]}
 }
 
 loader_funcs = []
