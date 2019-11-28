@@ -25,8 +25,18 @@ brunchItems = testtree.xpath('//section[@data-jump-nav-title="Brunch"]//div[@cla
 lunchItems = testtree.xpath('//section[@data-jump-nav-title="Lunch"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
 dinnerItems = testtree.xpath('//section[@data-jump-nav-title="Dinner"]//div[@class="c-tab__content site-panel__daypart-tab-content c-tab__content--active"]//button[@data-js="site-panel__daypart-item-title"]/text()')
 
+#write hours to databases
+insert_hours("Leutner", breakfastHours[0].__str__(), lunchHours[0].__str__(), dinnerHours[0].__str__(), None)
+
 #connect to database
 connection = mysql.connector.connect(host="localhost", user="bonapp", password="password", database="review")
+
+
+#write menu items to database
+write_to_db(breakfastItems, "Leutner", "Breakfast")
+write_to_db(brunchItems, "Leutner", "Lunch")
+write_to_db(lunchItems, "Leutner", "Lunch")
+write_to_db(dinnerItems, "Leutner", "Dinner")
 
 class WebTests(unittest.TestCase):
 
@@ -45,9 +55,6 @@ class WebTests(unittest.TestCase):
 
 
     def test_insert_hours(self):
-        #write hours to databases
-        insert_hours("Leutner", breakfastHours[0].__str__(), lunchHours[0].__str__(), dinnerHours[0].__str__(), None)
-
         #retrieve breakfast hours
         query = "select breakfast from dining_hall where name=%s"
         args = ("Leutner",)
@@ -59,21 +66,29 @@ class WebTests(unittest.TestCase):
         self.assertEqual(cursor.fetchall()[0][0],"7:00 am - 10:30 am", "dining hall hours not inserted correctly")
 
     def test_insert_meal(self):
-        #write menu items to database
-        write_to_db(breakfastItems, "Leutner", "Breakfast")
-        write_to_db(brunchItems, "Leutner", "Lunch")
-        write_to_db(lunchItems, "Leutner", "Lunch")
-        write_to_db(dinnerItems, "Leutner", "Dinner")
 
         query = "select count(name) from menu_item where name=%s"
+        #random sample of meals offered
         args = [("Scrambled Harissa Tofu",),("Apple Cinnamon Buttermilk Pancakes",),("Crispy Buffalo Cauliflower",),("Made to Order Quesadilla Station",),("Vegetable Pasta Minestrone",),("Baked Potato",),("Curry Bar",),("Chicken with Preserved Lemon and Olives",)]
 
         cursor = connection.cursor()
+        #check that all meals are contained in menu_item
         for x in range(len(args)):
             cursor.execute(query,args[x])
-            self.assertEqual(cursor.fetchall()[0][0],1,"missing menu item")
+            self.assertEqual(cursor.fetchall()[0][0],1,"missing menu item " + args[x][0])
 
-    #def test_serves(self):
+    def test_serves_table(self):
+        #insert_meal calls serves_table
+
+        query = "select count(serves.id) from menu_item, serves where (serves.menu_item_id=menu_item.id) and (name=%s) and (serves.dining_hall_name=\"Leutner\")"
+        #random sample of meals offered
+        args = [("Scrambled Harissa Tofu",),("Apple Cinnamon Buttermilk Pancakes",),("Crispy Buffalo Cauliflower",),("Made to Order Quesadilla Station",),("Vegetable Pasta Minestrone",),("Baked Potato",),("Curry Bar",),("Chicken with Preserved Lemon and Olives",)]
+
+        cursor = connection.cursor()
+        #check that all meals are contained in menu_item
+        for x in range(len(args)):
+            cursor.execute(query,args[x])
+            self.assertTrue(cursor.fetchall()[0][0]>=1,"missing serves relation for " + args[x][0])
 
 
 if __name__ == '__main__':
