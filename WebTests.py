@@ -82,7 +82,7 @@ class WebTests(unittest.TestCase):
 
         query = "select count(serves.id) from menu_item, serves where (serves.menu_item_id=menu_item.id) and (name=%s) and (serves.dining_hall_name=\"Leutner\")"
         #random sample of meals offered
-        args = [("Scrambled Harissa Tofu",),("Apple Cinnamon Buttermilk Pancakes",),("Crispy Buffalo Cauliflower",),("Made to Order Quesadilla Station",),("Vegetable Pasta Minestrone",),("Baked Potato",),("Curry Bar",),("Chicken with Preserved Lemon and Olives",)]
+        args = [("Scrambled Harissa Tofu",),("Vegetable and Bean Chili",),("Chicken Noodle Soup",),("Meat Lover's Pizza",),("Vegetable Pasta Minestrone",),("Baked Potato",),("Creamy Seitan Mushroom Stroganoff",),("Chicken with Preserved Lemon and Olives",)]
 
         cursor = connection.cursor()
         #check that all meals are contained in menu_item
