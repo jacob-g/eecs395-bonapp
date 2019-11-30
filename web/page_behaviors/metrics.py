@@ -9,6 +9,7 @@ type = "page"
 def preempt(db : DBConnector, metadata : dict):
     if metadata["login_state"].user is None or metadata["login_state"].user.role != "admin":
         return abort(404) 
+    
     return    
     
 def page_data(db : DBConnector, metadata : dict):
