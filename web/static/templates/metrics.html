@@ -4,8 +4,18 @@
 <section class="hero has-text-centered">
 	<div class="chart" id="bargraph">
 	    <script>
-	        var graphs = {{ page_data["plot"] | safe}};
-	        Plotly.plot('bargraph',graphs,{});
+	    	function graph_entry(x, y, name) {
+	    		return {x: x, y: y, name: name, type:"bar"}
+	    	}
+	    
+	        var menu_items = {{ page_data["menu_items"] | safe}};
+
+			var graphs = [
+				graph_entry(menu_items, {{ page_data["dailies"] | safe }}, "Daily Rating"),
+				graph_entry(menu_items, {{ page_data["totals"] | safe }}, "Overall Rating")
+			];
+				        
+	        Plotly.plot('bargraph', graphs, {barmode: "group"});
 	    </script>
 	</div>
 </section>
