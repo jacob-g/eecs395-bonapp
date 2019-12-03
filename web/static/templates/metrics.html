@@ -22,22 +22,24 @@
 
 <section class="hero has-text-centered">
 	<h2 class="title">Food Ratings</h2>
+</section>
+
 	<div class="chart" id="bargraph">
 	    <script>
 	    	function graph_entry(x, y, name) {
-	    		return {x: x, y: y, name: name, type:"bar"}
+	    		return {x: y, y: x, name: name, type:"bar", orientation:"h"}
 	    	}
-	    
-	        var menu_items = {{ page_data["menu_items"] | safe}};
 
-			var graphs = [
+
+        var menu_items = {{ page_data["menu_items"] | safe}};
+				var layout = {automargin: true}
+				var graphs = [
 				graph_entry(menu_items, {{ page_data["dailies"] | safe }}, "Daily Rating"),
 				graph_entry(menu_items, {{ page_data["totals"] | safe }}, "Overall Rating")
 			];
-				        
+
 	        Plotly.plot('bargraph', graphs, {barmode: "group"});
 	    </script>
 	</div>
-</section>
 
 {% endblock %}
