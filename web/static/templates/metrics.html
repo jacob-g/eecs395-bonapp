@@ -1,31 +1,5 @@
 {% extends 'base.html' %}
 {% block content %}
-<section class="hero has-text-centered is-primary">
-	<div class="hero-body">
-		<div class="container">
-			<h1 class="title">
-				Menu
-			</h1>
-			<div class="field has-addons">
-
-<section class="hero has-text-centered is-primary">
-	<div class="hero-body">
-    	<div class="container">
-			<form action="/metrics" method="get" enctype="text/plain">
-				<div class="field has-addons">
-					<div class="control is-expanded">
-				    	<input class="input" name="date" type="date" value="{{ page_data["date"].strftime("%Y-%m-%d") }}" required>
-				    </div>
-				    <button type="submit" class="button is-link" value="">
-				    	<span class="icon">
-				    		<i class="fas fa-check"></i>
-				    	</span>
-				    </button>
-				</div>
-			</form>
-		</div>
-	</div>
-</section>
 
 <section class="hero has-text-centered is-primary">
 	<div class="hero-body">
@@ -48,48 +22,31 @@
 
 <section class="hero has-text-centered">
 	<h2 class="title">Food Ratings</h2>
-	<div class="chart" id="bargraph">
-	    <script>
-	    	function graph_entry(x, y, name) {
-	    		return {x: x, y: y, name: name, type:"bar"}
-	    	}
-
-	        var menu_items = {{ page_data["menu_items"] | safe}};
-
-			var graphs = [
-				graph_entry(menu_items, {{ page_data["dailies"] | safe }}, "Daily Rating"),
-				graph_entry(menu_items, {{ page_data["totals"] | safe }}, "Overall Rating")
-			];
-
-	        Plotly.plot('bargraph', graphs, {barmode: "group"});
-	    </script>
-	</div>
 </section>
 
-<h2 class="title has-text-centered">Food Ratings</h2>
+<div class="chart" id="bargraph">
+    <script>
+			var daily = {
+				x: {{ page_data["menu_items"] | safe }},
+				y: {{ page_data["dailies"] | safe }},
+				name: 'Daily Rating',
+				type: 'bar'
+			};
 
-<div>
-	<section class="hero has-text-centered">
-		<div class="chart" id="bargraph">
-		    <script>
-		        var graphs = {{ page_data["food_plot"] | safe}};
-		        Plotly.plot('bargraph',graphs,{});
-		    </script>
-		</div>
-	</section>
+			var total = {
+				x: {{ page_data["menu_items"] | safe }},
+				y: {{ page_data["totals"] | safe }},
+				name: 'Historical Average Rating',
+				type: 'bar'
+			};
+
+			var data = {daily,total};
+
+			var layout = {barmode: 'group'};
+
+			Plotly.newPlot('bargraph', data, layout);
+    </script>
 </div>
 
-<h2 class="title has-text-centered">Amenity Availability</h2>
-
-<div>
-	<section class="hero has-text-centered">
-		<div class="chart" id="scatter">
-		    <script>
-		        var graphs = {{ page_data["amenities_plot"] | safe}};
-		        Plotly.plot('scatter',graphs,{});
-		    </script>
-		</div>
-	</section>
-</div>
 
 {% endblock %}
