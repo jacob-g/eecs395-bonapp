@@ -1,13 +1,47 @@
 {% extends 'base.html' %}
 {% block content %}
+<section class="hero has-text-centered is-primary">
+	<div class="hero-body">
+		<div class="container">
+			<h1 class="title">
+				Menu
+			</h1>
+			<div class="field has-addons">
 
-<section class="hero has-text-centered">
-	<div class="chart" id="bargraph">
-	    <script>
-	        var graphs = {{ page_data["plot"] | safe}};
-	        Plotly.plot('bargraph',graphs,{});
-	    </script>
+				<button class="button is-submit" type="submit" class="button is-success">
+					<span class="icon">
+						<i class="fas fa-check"></i>
+					</span>
+				</button>
+			</div>
+		</div>
 	</div>
 </section>
+
+<h2 class="title has-text-centered">Food Ratings</h2>
+
+<div>
+	<section class="hero has-text-centered">
+		<div class="chart" id="bargraph">
+		    <script>
+		        var graphs = {{ page_data["food_plot"] | safe}};
+		        Plotly.plot('bargraph',graphs,{});
+		    </script>
+		</div>
+	</section>
+</div>
+
+<h2 class="title has-text-centered">Amenity Availability</h2>
+
+<div>
+	<section class="hero has-text-centered">
+		<div class="chart" id="scatter">
+		    <script>
+		        var graphs = {{ page_data["amenities_plot"] | safe}};
+		        Plotly.plot('scatter',graphs,{});
+		    </script>
+		</div>
+	</section>
+</div>
 
 {% endblock %}
