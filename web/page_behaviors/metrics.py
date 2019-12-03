@@ -3,11 +3,14 @@ from libs import funcs
 from datetime import datetime
 from flask import abort
 import simplejson as json
+<<<<<<< HEAD
 
 type = "page"
 
 <<<<<<< HEAD
 def create_food_plot():
+=======
+>>>>>>> d66e2aad6fd3101be29e3c8cce6a8887912bee9b
 
     foods=['carrots', 'potatoes', 'cultural appropriation']
 
@@ -20,6 +23,7 @@ def create_food_plot():
                         xaxis_title='Menu Items',
                         yaxis_title='Rating Score')
 
+<<<<<<< HEAD
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
     return graphJSON
@@ -54,6 +58,8 @@ def preempt(db : DBConnector, metadata : dict):
 def page_data(db : DBConnector, metadata : dict):
     return {"food_plot": create_food_plot(), "amenities_plot": create_amenities_plot()}
 =======
+=======
+>>>>>>> d66e2aad6fd3101be29e3c8cce6a8887912bee9b
 def preempt(db : DBConnector, metadata : dict):
     if metadata["login_state"].user is None or metadata["login_state"].user.role != "admin":
         return abort(404) 
@@ -69,5 +75,9 @@ def page_data(db : DBConnector, metadata : dict):
     dailies = [review_stat[0].average_rating for review_stat in review_stats]
     totals = [review_stat[1] for review_stat in review_stats]
         
+<<<<<<< HEAD
+    return {"date": date, "menu_items": json.dumps(menu_item_names, use_decimal = True), "dailies": json.dumps(dailies, use_decimal = True), "totals": json.dumps(totals, use_decimal = True)}
+>>>>>>> d66e2aad6fd3101be29e3c8cce6a8887912bee9b
+=======
     return {"date": date, "menu_items": json.dumps(menu_item_names, use_decimal = True), "dailies": json.dumps(dailies, use_decimal = True), "totals": json.dumps(totals, use_decimal = True)}
 >>>>>>> d66e2aad6fd3101be29e3c8cce6a8887912bee9b

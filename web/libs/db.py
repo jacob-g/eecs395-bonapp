@@ -76,6 +76,12 @@ class DBConnector:
 								{"serves.id": "serves.id", "serves.meal": "serves.meal", "menu_item.id": "menu_item.id", "menu_item.name": "menu_item.name", "AVG(review.rating)": "average_rating"},
 								 (dining_hall.name, date, meal),
 								 lambda row : objects.MenuItemServed.from_db(row, dining_hall))
+		
+	def average_daily_and_total_ratings(self, date: datetime.date):
+		return self.__multiple_rows("SELECT {params} FROM serves LEFT JOIN menu_item ON menu_item.id=serves.menu_item_id LEFT JOIN dining_hall ON dining_hall.name=serves.dining_hall_name LEFT JOIN review AS daily_reviews ON daily_reviews.item=serves.id LEFT JOIN serves AS all_times_served ON all_times_served.menu_item_id=menu_item.id LEFT JOIN review AS all_reviews ON all_reviews.item=all_times_served.id WHERE serves.date_of=%s GROUP BY serves.id ORDER BY menu_item.name ASC", 
+								{"serves.id": "serves.id", "serves.meal": "serves.meal", "menu_item.id": "menu_item.id", "menu_item.name": "menu_item.name", "dining_hall.name" : "dining_hall.name", "AVG(daily_reviews.rating)": "average_rating", "AVG(all_reviews.rating)": "total_rating"},
+								(date, ),
+								lambda row : (objects.MenuItemServed.from_db(row, objects.DiningHall.from_db(row)), row["total_rating"]))
 
 	def all_menu_items(self, pattern="%"):
 		return self.__multiple_rows("SELECT {params} FROM menu_item WHERE menu_item.name LIKE %s ORDER BY menu_item.name ASC",

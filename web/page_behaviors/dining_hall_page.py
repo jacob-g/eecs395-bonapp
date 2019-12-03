@@ -2,6 +2,7 @@ from flask import abort, request
 from libs import objects
 from libs.db import DBConnector
 from datetime import datetime
+from libs import funcs
 
 type = "page"
 
@@ -18,13 +19,10 @@ def page_data(db : DBConnector, metadata : dict, dining_hall_name : str):
     
     if "meal" in request.args:
         meal = request.args["meal"]
-        
+    
     if "date" in request.args:
-        try:
-            date = datetime.strptime(request.args["date"], "%Y-%m-%d").date()
-        except ValueError:
-            None
-                
+        date = funcs.date_from_request()
+                    
     return {"dining_hall": dining_hall,
             "meal": meal,
             "date": date,

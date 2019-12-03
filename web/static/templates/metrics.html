@@ -36,6 +36,25 @@
 	</div>
 </section>
 
+<section class="hero has-text-centered is-primary">
+	<div class="hero-body">
+    	<div class="container">
+			<form action="/metrics" method="get" enctype="text/plain">
+				<div class="field has-addons">
+					<div class="control is-expanded">
+				    	<input class="input" name="date" type="date" value="{{ page_data["date"].strftime("%Y-%m-%d") }}" required>
+				    </div>
+				    <button type="submit" class="button is-link" value="">
+				    	<span class="icon">
+				    		<i class="fas fa-check"></i>
+				    	</span>
+				    </button>
+				</div>
+			</form>
+		</div>
+	</div>
+</section>
+
 <section class="hero has-text-centered">
 	<h2 class="title">Food Ratings</h2>
 	<div class="chart" id="bargraph">
