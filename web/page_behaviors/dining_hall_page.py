@@ -19,9 +19,10 @@ def page_data(db : DBConnector, metadata : dict, dining_hall_name : str):
     
     if "meal" in request.args:
         meal = request.args["meal"]
-        
-    date = funcs.date_from_request()
-                
+    
+    if "date" in request.args:
+        date = funcs.date_from_request()
+                    
     return {"dining_hall": dining_hall,
             "meal": meal,
             "date": date,

@@ -1,5 +1,6 @@
 from flask import abort, request
 from libs.db import DBConnector
+from math import ceil
 
 type = "page"
 
@@ -12,7 +13,7 @@ def page_of(list, page, page_size = 20):
     
     offset : int = (page - 1) * page_size
     
-    return list[offset:(offset+page_size)] if len(list) > offset else []
+    return page_size, list[offset:(offset+page_size)] if len(list) > offset else []
 
 def preempt(db : DBConnector, metadata : dict, serves_id : int):
     served_item = db.served_item(serves_id)
@@ -20,7 +21,7 @@ def preempt(db : DBConnector, metadata : dict, serves_id : int):
     if served_item is None:
         return abort(404)
     
-    if get_page() > 1 and len(page_of(db.reviews_for(served_item), get_page())) == 0:
+    if get_page() > 1 and len(page_of(db.reviews_for(served_item), get_page())[1]) == 0:
         return abort(404)
 
 def page_data(db : DBConnector, metadata : dict, serves_id : int):
@@ -29,6 +30,6 @@ def page_data(db : DBConnector, metadata : dict, serves_id : int):
     assert served_item is not None
         
     reviews = db.reviews_for(served_item)
-    paginated_reviews = page_of(reviews, get_page())
+    page_size, paginated_reviews = page_of(reviews, get_page())
 
-    return {"served_item": served_item, "reviews": paginated_reviews, "total_num_pages": len(reviews), "page": get_page()}
+    return {"served_item": served_item, "reviews": paginated_reviews, "total_num_pages": ceil(len(reviews) / page_size), "page": get_page()}
