@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<section class="hero has-text-centered is-primary">
-	<div class="hero-body">
-    	<div class="container">
-			<form action="/metrics" method="get" enctype="text/plain">
+<form action="/metrics" method="get" enctype="text/plain">
+	<section class="hero has-text-centered is-primary">
+		<div class="hero-body">
+			<h2 class="title">Food Ratings</h2>
+	    	<div class="container">
 				<div class="field has-addons">
 					<div class="control is-expanded">
 				    	<input class="input" name="date" type="date" value="{{ page_data["date"].strftime("%Y-%m-%d") }}" required>
@@ -15,38 +16,81 @@
 				    	</span>
 				    </button>
 				</div>
-			</form>
+			</div>
 		</div>
-	</div>
-</section>
+	</section>
+	
+	<section class="hero">
+		<div class="chart" id="food_ratings_graph">
+		    <script>
+		    var daily = {
+		   		x: {{ page_data["menu_items"] | safe }},
+		   		y: {{ page_data["daily_food_ratings"] | safe }},
+		   		name: 'Daily Rating',
+		   		type: 'bar'
+		   	};
+		
+		   	var total = {
+		   		x: {{ page_data["menu_items"] | safe }},
+		   		y: {{ page_data["historical_food_ratings"] | safe }},
+		   		name: 'Historical Average Rating',
+		   		type: 'bar'
+		   	};
+		
+			Plotly.newPlot('food_ratings_graph', [daily, total], {barmode: 'group'});
+		    </script>
+		</div>
+	</section>
 
-<section class="hero has-text-centered">
-	<h2 class="title">Food Ratings</h2>
-</section>
-
-<div class="chart" id="bargraph">
-    <script>
-    var daily = {
-				x: {{ page_data["menu_items"] | safe }},
-				y: {{ page_data["dailies"] | safe }},
-				name: 'Daily Rating',
-				type: 'bar'
-			};
-
-			var total = {
-				x: {{ page_data["menu_items"] | safe }},
-				y: {{ page_data["totals"] | safe }},
-				name: 'Historical Average Rating',
-				type: 'bar'
-			};
-
-			var data = [daily,total];
-
-			var layout = {barmode: 'group'};
-
-			Plotly.newPlot('bargraph', data, layout);
-    </script>
-</div>
-
-
+	<section class="hero has-text-centered is-primary">
+		<div class="hero-body">
+			<h2 class="title">Amenity Availability</h2>
+	    	<div class="container">
+				<div class="field has-addons">
+					<div class="select is-expanded">
+			          <select name="inventory" placeholder="Food">
+			            {% for inventory_item in page_data["all_inventory_items"] %}
+			            <option value="{{ inventory_item.item_id }}"{% if "inventory" in request.args and inventory_item.item_id.__str__() == request.args["inventory"] %} selected{% endif %}> {{ inventory_item.name }} </option>
+			            {% endfor %}
+			          </select>
+			        </div>
+				    <button type="submit" class="button is-link" value="">
+				    	<span class="icon">
+				    		<i class="fas fa-check"></i>
+				    	</span>
+				    </button>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	{% if "inventory" in request.args %}
+		<section class="hero">
+			<div class="chart" id="amenity_availability_graph">
+				<script>
+				var plots = []
+			    {% for dining_hall, hours in page_data["historical_availabilities"].items() %}
+			    plots.push({
+			    	x: {{ page_data["hours"] | safe }},
+			    	y: {{ hours | tojson | safe }},
+			    	name: "Historical availibility at {{ dining_hall.name }}",
+			    	type: 'bar'
+			    });
+			    {% endfor %}
+			    
+			    {% for dining_hall, hours in page_data["daily_availabilities"].items() %}
+			    plots.push({
+			    	x: {{ page_data["hours"] | safe }},
+			    	y: {{ hours | tojson | safe }},
+			    	name: "Daily availibility at {{ dining_hall.name }}",
+			    	type: 'bar'
+			    });
+			    {% endfor %}
+			
+				Plotly.newPlot('amenity_availability_graph', plots, {barmode: 'group'});
+			    </script>
+			</div>
+		</section>
+	{% endif %}
+</form>
 {% endblock %}

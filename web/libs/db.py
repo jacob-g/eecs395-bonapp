@@ -130,6 +130,25 @@ class DBConnector:
 								{"inventory_item.id": "inventory_item.id", "inventory_item.name": "inventory_item.name"},
 								(item_id, ), 
 								lambda row : objects.InventoryItem.from_db(row))
+		
+	def all_inventory_items(self):
+		return self.__multiple_rows("SELECT {params} FROM inventory_item", 
+								{"inventory_item.id": "inventory_item.id", "inventory_item.name": "inventory_item.name"},
+								(), 
+								lambda row : objects.InventoryItem.from_db(row))
+		
+	def average_inventory_availibility_by_hour(self, item : objects.InventoryItem):
+		return self.__multiple_rows("SELECT {params} FROM statuses LEFT JOIN inventory_item ON inventory_item.id=statuses.item_id LEFT JOIN dining_hall ON dining_hall.name=statuses.dining_hall WHERE statuses.item_id=%s GROUP BY HOUR(statuses.time_stamp)",
+								{"HOUR(statuses.time_stamp)": "hour", "AVG(statuses.status)": "statuses.status", "inventory_item.id": "inventory_item.id", "inventory_item.name": "inventory_item.name", "dining_hall.name": "dining_hall.name"},
+								(item.item_id, ),
+								lambda row : (row["hour"], objects.InventoryStatus(row, objects.DiningHall.from_db(row), row["statuses.status"])))
+		
+	def daily_inventory_availibility_by_hour(self, item : objects.InventoryItem, date : datetime.date):
+		return self.__multiple_rows("SELECT {params} FROM statuses LEFT JOIN inventory_item ON inventory_item.id=statuses.item_id LEFT JOIN dining_hall ON dining_hall.name=statuses.dining_hall WHERE statuses.item_id=%s AND DATE(statuses.time_stamp)=%s GROUP BY HOUR(statuses.time_stamp)",
+								{"HOUR(statuses.time_stamp)": "hour", "AVG(statuses.status)": "statuses.status", "inventory_item.id": "inventory_item.id", "inventory_item.name": "inventory_item.name", "dining_hall.name": "dining_hall.name"},
+								(item.item_id, date),
+								lambda row : (row["hour"], objects.InventoryStatus(row, objects.DiningHall.from_db(row), row["statuses.status"])))
+
 
 	def add_status(self, dining_hall : objects.DiningHall, inventory_item : objects.InventoryItem, status : int, user : objects.User, minutes : int):
 		self._query("INSERT INTO statuses(item_id,status,dining_hall,time_stamp,user) SELECT %s, %s, %s, NOW(), %s FROM DUAL WHERE (SELECT COUNT(1) FROM statuses WHERE user=%s AND dining_hall=%s AND item_id=%s AND time_stamp>(NOW() - INTERVAL %s MINUTE))=0", (inventory_item.item_id, status, dining_hall.name, user.user_id, user.user_id, dining_hall.name, inventory_item.item_id, minutes), True)
@@ -162,7 +181,7 @@ class DBConnector:
 								{"alert.id": "alert.id", "menu_item.id": "menu_item.id", "menu_item.name": "menu_item.name"},
 								(user.user_id, ),
 								lambda row : objects.AlertSubscription.from_db(row, user))
-
+		
 	def remove_alert(self, alert_id : objects.AlertSubscription, user : objects.User):
 		self._query("DELETE FROM alert WHERE id=%s AND user=%s", (alert_id, user.user_id), True)
 		return

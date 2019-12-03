@@ -26,5 +26,5 @@ def page_data(db : DBConnector, metadata : dict, dining_hall_name : str):
     return {"dining_hall": dining_hall,
             "meal": meal,
             "date": date,
-            "menu": dining_hall.menu(date, meal, db), 
+            "menu": dining_hall.menu(date, meal, db),
             "inventory": dining_hall.inventory(status_minutes, db)}
