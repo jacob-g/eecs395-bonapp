@@ -26,7 +26,7 @@
 
 <div class="chart" id="bargraph">
     <script>
-			var daily = {
+    var daily = {
 				x: {{ page_data["menu_items"] | safe }},
 				y: {{ page_data["dailies"] | safe }},
 				name: 'Daily Rating',
@@ -40,7 +40,7 @@
 				type: 'bar'
 			};
 
-			var data = {daily,total};
+			var data = [daily,total];
 
 			var layout = {barmode: 'group'};
 
