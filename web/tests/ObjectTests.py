@@ -12,7 +12,7 @@ from libs import db
 from libs import objects
 from datetime import datetime, time, timedelta
 from page_behaviors import dining_hall_page, add_alert, add_review, add_status, alerts_page, delete_review, remove_alert,\
-    view_reviews, send_contact
+    view_reviews, send_contact, metrics
 import flask
 import werkzeug
 
@@ -111,6 +111,9 @@ class FakeNotLoggedInState:
 
 class FakeLoggedInState:
     user = objects.User("abc123", "Test User", "user")
+    
+class FakeAdminState:
+    user = objects.User("abc123", "Test User", "admin")
         
 class PreemptTests(unittest.TestCase):
     leutner = objects.DiningHall.from_list(db_connection.dining_halls(), "Leutner")
@@ -200,18 +203,16 @@ class PreemptTests(unittest.TestCase):
             with mock.patch("page_behaviors.delete_review.request", m):
                 delete_review.preempt(db_connection, {"login_state": FakeLoggedInState()})
                 
-        admin = FakeLoggedInState();
-        admin.user.role = "admin"
         with self.assertRaises(werkzeug.exceptions.NotFound, msg="delete review page failed to reject non-existent reviews"):
             with mock.patch("page_behaviors.delete_review.request", m):
-                delete_review.preempt(db_connection, {"login_state": admin})
+                delete_review.preempt(db_connection, {"login_state": FakeAdminState()})
         
         result = db_connection._query("SELECT id FROM review", ())
         
         m.form["review_id"] = result[0][0]
                 
         with mock.patch("page_behaviors.delete_review.request", m):
-            self.assertEqual(delete_review.preempt(db_connection, {"login_state": admin}), None, "delete review rejects valid request")
+            self.assertEqual(delete_review.preempt(db_connection, {"login_state": FakeAdminState()}), None, "delete review rejects valid request")
             
     def test_dining_hall_page(self):
         m = mock.MagicMock()
@@ -233,6 +234,19 @@ class PreemptTests(unittest.TestCase):
             
             del m.args["meal"]
             self.assertEqual(dining_hall_page.preempt(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner"), None, "dining hall page failed to accept no meal provided")
+            
+    def test_metrics_page(self):
+        m = mock.MagicMock()
+        m.args = {}
+        
+        with mock.patch("libs.funcs.request", m):
+            with self.assertRaises(werkzeug.exceptions.NotFound, msg="metrics page failed to reject not-logged-in user"):
+                metrics.preempt(db_connection, {"login_state": FakeNotLoggedInState()})
+                
+            with self.assertRaises(werkzeug.exceptions.NotFound, msg="metrics page failed to reject non-admin"):
+                metrics.preempt(db_connection, {"login_state": FakeLoggedInState()})
+            
+            self.assertEqual(metrics.preempt(db_connection, {"login_state": FakeAdminState()}), None, "metrics page failed to accept admin")
             
     def test_remove_alert_page(self):
         with self.assertRaises(werkzeug.exceptions.NotFound, msg="remove alert page failed to reject not logged in user"):
@@ -302,18 +316,19 @@ class PageDataTests(unittest.TestCase):
         m.args = {"meal": "lunch"}
         
         with mock.patch("page_behaviors.dining_hall_page.request", m): 
-            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["dining_hall"].name, "Leutner", "dining hall page got wrong dining hall")        
-            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["meal"], "lunch", "dining hall page got wrong meal")        
-            m.args["meal"] = "dinner"
-            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["meal"], "dinner", "dining hall page got wrong meal")
-        
-            m.args["date"] = "2019-01-02"
-            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].day, 2, "dining hall page got wrong day")
-            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].month, 1, "dining hall page got wrong month")
-            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].year, 2019, "dining hall page got wrong date")
+            with mock.patch("libs.funcs.request", m): 
+                self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["dining_hall"].name, "Leutner", "dining hall page got wrong dining hall")        
+                self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["meal"], "lunch", "dining hall page got wrong meal")        
+                m.args["meal"] = "dinner"
+                self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["meal"], "dinner", "dining hall page got wrong meal")
             
-            m.args["date"] = "randomstringofgarbage"
-            self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].day, datetime.today().day, "dining hall page didn't ignore invalid date")
+                m.args["date"] = "2019-01-02"
+                self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].day, 2, "dining hall page got wrong day")
+                self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].month, 1, "dining hall page got wrong month")
+                self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].year, 2019, "dining hall page got wrong date")
+                
+                m.args["date"] = "randomstringofgarbage"
+                self.assertEqual(dining_hall_page.page_data(db_connection, {"dining_halls": db_connection.dining_halls()}, "Leutner")["date"].day, datetime.today().day, "dining hall page didn't ignore invalid date")
         
         return
     

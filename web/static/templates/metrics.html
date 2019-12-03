@@ -8,6 +8,7 @@
 			</h1>
 			<div class="field has-addons">
 
+<<<<<<< HEAD
 				<button class="button is-submit" type="submit" class="button is-success">
 					<span class="icon">
 						<i class="fas fa-check"></i>
@@ -15,6 +16,44 @@
 				</button>
 			</div>
 		</div>
+=======
+<section class="hero has-text-centered is-primary">
+	<div class="hero-body">
+    	<div class="container">
+			<form action="/metrics" method="get" enctype="text/plain">
+				<div class="field has-addons">
+					<div class="control is-expanded">
+				    	<input class="input" name="date" type="date" value="{{ page_data["date"].strftime("%Y-%m-%d") }}" required>
+				    </div>
+				    <button type="submit" class="button is-link" value="">
+				    	<span class="icon">
+				    		<i class="fas fa-check"></i>
+				    	</span>
+				    </button>
+				</div>
+			</form>
+		</div>
+	</div>
+</section>
+
+<section class="hero has-text-centered">
+	<h2 class="title">Food Ratings</h2>
+	<div class="chart" id="bargraph">
+	    <script>
+	    	function graph_entry(x, y, name) {
+	    		return {x: x, y: y, name: name, type:"bar"}
+	    	}
+	    
+	        var menu_items = {{ page_data["menu_items"] | safe}};
+
+			var graphs = [
+				graph_entry(menu_items, {{ page_data["dailies"] | safe }}, "Daily Rating"),
+				graph_entry(menu_items, {{ page_data["totals"] | safe }}, "Overall Rating")
+			];
+				        
+	        Plotly.plot('bargraph', graphs, {barmode: "group"});
+	    </script>
+>>>>>>> d66e2aad6fd3101be29e3c8cce6a8887912bee9b
 	</div>
 </section>
 

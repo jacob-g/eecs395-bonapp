@@ -24,16 +24,13 @@
 
 <!--  TODO: use page_data["page"] to make this work, Ammar (link to ?page=whatever) -->
 <nav class="pagination is-centered" role="navigation" aria-label="pagination">
-  <a class="pagination-previous">Previous</a>
-  <a class="pagination-next">Next page</a>
+  
+  <a class="pagination-previous" href="?page={{ page_data["page"] - 1 }}" {% if page_data["page"] == 1 %}disabled{% endif %}>Previous</a>
+  <a class="pagination-next" href="?page={{ page_data["page"] + 1 }}" {% if page_data["page"] == page_data["total_num_pages"] %}disabled{% endif %}>Next page</a>
   <ul class="pagination-list">
-    <li><a class="pagination-link" aria-label="Goto page 1">1</a></li>
-    <li><span class="pagination-ellipsis">&hellip;</span></li>
-    <li><a class="pagination-link" aria-label="Goto page 45">45</a></li>
-    <li><a class="pagination-link is-current" aria-label="Page 46" aria-current="page">46</a></li>
-    <li><a class="pagination-link" aria-label="Goto page 47">47</a></li>
-    <li><span class="pagination-ellipsis">&hellip;</span></li>
-    <li><a class="pagination-link" aria-label="Goto page 86">86</a></li>
+    {% for page in range(1, page_data["total_num_pages"] + 1) %}
+    <li><a class="pagination-link{% if page == page_data["page"] %} is-current{% endif %}" aria-label="Goto page {{ page }}" href="?page={{ page }}"{% if page == page_data["page"] %} aria-current="page"{% endif %}>{{ page }}</a></li>
+    {% endfor %}
   </ul>
 </nav>
 
