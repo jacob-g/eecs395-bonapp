@@ -42,7 +42,7 @@
       <p class="subtitle">Select a menu item and dining hall from the dropdown menus to be alerted by email when that item will appear on the menu.</p>
       <form action="/alerts/add" method="post" enctype="multipart/form-data">
         <div class="select is-expanded">
-          <select name="inventory" placeholder="Food">
+          <select name="food" placeholder="Food">
             {% for menu_item in page_data["all_menu_items"] %}
             	<option value="{{ menu_item.menu_item_id }}"> {{ menu_item.name }} </option>
             {% endfor %}
