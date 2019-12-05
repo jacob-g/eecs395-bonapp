@@ -16,7 +16,7 @@
             <a class="navbar-item" href="/">Home</a>
             {% if metadata["login_state"].user %}
                 <a class="navbar-item" href="/alerts">Alerts</a>
-                {% if metadata.login_state.role == "admin" %}
+                {% if metadata["login_state"].user.role == "admin" %}
                 	<a class="navbar-item" href="/metrics">Metrics</a>
                 {% endif %}
                 <a class="navbar-item" href="{{ metadata.login_state.logout_url }}">Log Out</a>
