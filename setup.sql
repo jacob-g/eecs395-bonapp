@@ -46,10 +46,10 @@ create table menu_item (
 
 create table dining_hall (
   name varchar(225) not null primary key,
-  breakfast varchar(225),
-  lunch varchar(225),
-  dinner varchar(225),
-  brunch varchar(225)
+  Breakfast varchar(225),
+  Lunch varchar(225),
+  Dinner varchar(225),
+  Brunch varchar(225)
 );
 
 create table inventory_item (
