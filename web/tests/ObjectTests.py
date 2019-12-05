@@ -49,7 +49,7 @@ class ObjectModelTests(unittest.TestCase):
         
         #leave a review
         rating_num = random.randint(1, 5)
-        review_text = "test review %s".format(random.randint(1, 100000))
+        review_text = "test review %s" % random.randint(1, 100000)
         db_connection.add_review(test_user, rating_num, review_text, served_item.serve_id)
         reviews = db_connection.reviews_for(served_item)
         self.assertEqual(len(reviews), 1, "review not properly added")
@@ -63,7 +63,7 @@ class ObjectModelTests(unittest.TestCase):
         
         #create some random inventory item
         inventory_item_id = random.randint(1, 100000)
-        inventory_item_name = "Inventory Item %s".format(random.randint(1, 100000))
+        inventory_item_name = "Inventory Item %s" % random.randint(1, 100000)
         db_connection._query("INSERT INTO inventory_item(id, name) VALUES(%s, %s)", (inventory_item_id, inventory_item_name, ), True)
         
         def get_inventory():
@@ -240,13 +240,22 @@ class PreemptTests(unittest.TestCase):
         m.args = {}
         
         with mock.patch("libs.funcs.request", m):
-            with self.assertRaises(werkzeug.exceptions.NotFound, msg="metrics page failed to reject not-logged-in user"):
-                metrics.preempt(db_connection, {"login_state": FakeNotLoggedInState()})
+            with mock.patch("page_behaviors.metrics.request", m):
+                with self.assertRaises(werkzeug.exceptions.NotFound, msg="metrics page failed to reject not-logged-in user"):
+                    metrics.preempt(db_connection, {"login_state": FakeNotLoggedInState()})
+                    
+                with self.assertRaises(werkzeug.exceptions.NotFound, msg="metrics page failed to reject non-admin"):
+                    metrics.preempt(db_connection, {"login_state": FakeLoggedInState()})
+                    
+                m.args["inventory"] = -1
+                with self.assertRaises(werkzeug.exceptions.NotFound, msg="metrics page failed to reject non-existent food item"):
+                    metrics.preempt(db_connection, {"login_state": FakeAdminState()})
                 
-            with self.assertRaises(werkzeug.exceptions.NotFound, msg="metrics page failed to reject non-admin"):
-                metrics.preempt(db_connection, {"login_state": FakeLoggedInState()})
-            
-            self.assertEqual(metrics.preempt(db_connection, {"login_state": FakeAdminState()}), None, "metrics page failed to accept admin")
+                m.args["inventory"] = db_connection.all_inventory_items()[0].item_id
+                self.assertEqual(metrics.preempt(db_connection, {"login_state": FakeAdminState()}), None, "metrics page failed to accept admin with valid inventory item")
+                
+                m.args = {}
+                self.assertEqual(metrics.preempt(db_connection, {"login_state": FakeAdminState()}), None, "metrics page failed to accept admin with no inventory item")
             
     def test_remove_alert_page(self):
         with self.assertRaises(werkzeug.exceptions.NotFound, msg="remove alert page failed to reject not logged in user"):
